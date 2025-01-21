@@ -2,7 +2,7 @@ services:
   sync_service:
     build:
       context: .
-      dockerfile: Dockerfile.Local
+      dockerfile: Dockerfile.Dev
     volumes:
       - .:/app
     ports:
