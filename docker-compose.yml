@@ -1,0 +1,16 @@
+services:
+  sync_service:
+    build:
+      context: .
+      dockerfile: Dockerfile.Local
+    volumes:
+      - .:/app
+    ports:
+      - "8000:8000"
+    networks:
+      - ambisis-local
+    env_file:
+      - .env
+networks:
+  ambisis-local:
+    name: ambisis-local

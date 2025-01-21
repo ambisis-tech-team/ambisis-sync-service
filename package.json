@@ -1,0 +1,41 @@
+{
+  "name": "ambisis-sync-service",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "check-types": "tsc --noEmit",
+    "compile": "tsc --build",
+    "dev": "npm-run-all -p dev:watch dev:server",
+    "dev:server": "nodemon build/main.js --delay 1",
+    "dev:watch": "tsc --build -w",
+    "test:unit": "vitest unit --config=vitest.unit.config.ts",
+    "test:integration": "vitest integration --config=vitest.integration.config.ts"
+  },
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "devDependencies": {
+    "@testcontainers/mysql": "^10.16.0",
+    "@types/express": "^5.0.0",
+    "@types/multer": "^1.4.12",
+    "nodemon": "^3.1.9",
+    "npm-run-all": "^4.1.5",
+    "typescript": "^5.7.3",
+    "vitest": "^3.0.2"
+  },
+  "dependencies": {
+    "@aws-sdk/client-s3": "^3.731.1",
+    "@sentry/core": "^8.50.0",
+    "@sentry/node": "^8.50.0",
+    "@sentry/profiling-node": "^8.50.0",
+    "@types/cors": "^2.8.17",
+    "ambisis_node_helper": "^1.10.1",
+    "cors": "^2.8.5",
+    "date-fns": "^4.1.0",
+    "express": "^4.21.2",
+    "multer": "^1.4.5-lts.1",
+    "mysql-all-in-one": "^4.10.2",
+    "void-ts": "^1.0.19",
+    "zod": "^3.24.1"
+  }
+}
