@@ -11,7 +11,6 @@ export type AuthSession = z.infer<typeof authSessionSchema>;
 const userSession = z.object({
   user_id: z.number(),
   client_id: z.number(),
-  mtr_id: z.number(),
   database: z.string(),
   uuid: z.string(),
 });

@@ -1,7 +1,6 @@
 import type { Request, Response } from "express";
 import { isSyncRequestSchema } from "./types/trigger_request";
 import { startSpan } from "@sentry/node";
-import { SPAN_STATUS_ERROR, SPAN_STATUS_OK } from "@sentry/core";
 import { ambisisResponse, log, LogLevel } from "ambisis_node_helper";
 import { pushChanges } from "./functions/push_changes/push_changes";
 import { pullChanges } from "./functions/pull_changes/pull_changes";
@@ -54,7 +53,7 @@ export const trigger = (req: Request, res: Response) =>
       });
 
       log(
-        ` Starting sync - userId: ${user_id} - database: ${database}`,
+        `Starting sync - userId: ${user_id} - database: ${database}`,
         LogLevel.INFO
       );
 
@@ -177,7 +176,7 @@ export const trigger = (req: Request, res: Response) =>
       );
 
       log(
-        ` Finished sync - userId: ${user_id} - database: ${database}`,
+        `Finished sync - userId: ${user_id} - database: ${database}`,
         LogLevel.INFO
       );
 

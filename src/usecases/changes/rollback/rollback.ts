@@ -11,6 +11,11 @@ export const rollback = (req: Request, res: Response) =>
   startSpan({ name: "rollback" }, async (span) => {
     const { user_id, database } = req.session;
     try {
+      log(
+        `Rolling back sync transaction - ${user_id} - ${database}`,
+        LogLevel.INFO
+      );
+
       const processSync = await getSyncProcessByUser(user_id);
 
       const { transactionCentral, transactionClient } =
@@ -23,6 +28,11 @@ export const rollback = (req: Request, res: Response) =>
         id: processSync.id,
         status: ProcessSyncStatus.ERROR,
       });
+
+      log(
+        `Rolled back sync transaction - ${user_id} - ${database}`,
+        LogLevel.INFO
+      );
 
       return ambisisResponse(res, 200, "OK");
     } catch (error) {
