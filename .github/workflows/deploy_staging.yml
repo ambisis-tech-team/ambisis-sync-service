@@ -42,7 +42,7 @@ jobs:
       # Start AWS environment
       - name: Download task definition
         run: |
-          aws ecs describe-task-definition --task-definition e --query taskDefinition > task-definition.json
+          aws ecs describe-task-definition --task-definition ambisis-sync-service-stg-td --query taskDefinition > task-definition.json
 
       - name: Update task definition with new image
         run: |
