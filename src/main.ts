@@ -6,7 +6,7 @@ const main = async () => {
 
   server(app);
 
-  app.listen(8000);
+  app.listen(3037);
 };
 
 main();

@@ -1,0 +1,61 @@
+name: Release Pipeline
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  deploy-production:
+    name: Deploy to Production
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v2
+
+      - name: Set release version tag
+        id: release-version
+        run: echo ::set-output name=tag::${GITHUB_REF/refs\/tags\//}
+
+      # Start AWS environment
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
+
+      - name: Tag and push image
+        id: tag-image
+        env:
+          REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          REPOSITORY: ambisis-sync-prod
+          IMAGE_TAG: prod-${{ github.sha }}-${{ github.run_number }}
+        run: |
+          docker build -t $REGISTRY/$REPOSITORY:$IMAGE_TAG .
+          docker push $REGISTRY/$REPOSITORY:$IMAGE_TAG
+          echo "::set-output name=image::$REGISTRY/$REPOSITORY:$IMAGE_TAG"
+
+      # Start AWS environment
+      - name: Download task definition
+        run: |
+          aws ecs describe-task-definition --task-definition ambisis-sync-service-prod-td --query taskDefinition > task-definition.json
+
+      - name: Render Amazon ECS task definition
+        id: deploy-task-def
+        uses: aws-actions/amazon-ecs-render-task-definition@v1
+        with:
+          task-definition: task-definition.json
+          container-name: ambisis-sync-service-container
+          image: ${{ steps.tag-image.outputs.image }}
+
+      # - name: Deploy to Amazon ECS
+      #   uses: aws-actions/amazon-ecs-deploy-task-definition@v2
+      #   with:
+      #     task-definition: ${{ steps.deploy-task-def.outputs.task-definition }}
+      #     service: ambisis-sync-service-prod
+      #     cluster: ambisis-ecs-cluster
+      #     wait-for-service-stability: true
