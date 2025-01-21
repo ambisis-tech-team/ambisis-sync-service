@@ -61,3 +61,11 @@ jobs:
           --cluster ambisis-staging-cluster \
           --service ambisis-sync-service-staging \
           --task-definition ${{ steps.register-task-def.outputs.new_task_def_arn }}
+
+      - name: Deploy to Amazon ECS
+        uses: aws-actions/amazon-ecs-deploy-task-definition@v2
+        with:
+          task-definition: ${{ steps.register-task-def.outputs.new_task_def_arn }}
+          service: ambisis-sync-service-prod
+          cluster: ambisis-ecs-cluster
+          wait-for-service-stability: true
