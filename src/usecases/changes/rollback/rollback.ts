@@ -23,6 +23,8 @@ export const rollback = (req: Request, res: Response) =>
         id: processSync.id,
         status: ProcessSyncStatus.ERROR,
       });
+
+      return ambisisResponse(res, 200, "OK");
     } catch (error) {
       span.setStatus({
         code: SPAN_STATUS_ERROR,

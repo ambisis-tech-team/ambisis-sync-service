@@ -52,10 +52,10 @@ jobs:
           container-name: ambisis-sync-service-container
           image: ${{ steps.tag-image.outputs.image }}
 
-      # - name: Deploy to Amazon ECS
-      #   uses: aws-actions/amazon-ecs-deploy-task-definition@v2
-      #   with:
-      #     task-definition: ${{ steps.deploy-task-def.outputs.task-definition }}
-      #     service: ambisis-sync-service-prod
-      #     cluster: ambisis-ecs-cluster
-      #     wait-for-service-stability: true
+      - name: Deploy to Amazon ECS
+        uses: aws-actions/amazon-ecs-deploy-task-definition@v2
+        with:
+          task-definition: ${{ steps.deploy-task-def.outputs.task-definition }}
+          service: ambisis-sync-service-prod
+          cluster: ambisis-ecs-cluster
+          wait-for-service-stability: true

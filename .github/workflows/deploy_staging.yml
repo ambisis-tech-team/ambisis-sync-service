@@ -55,9 +55,9 @@ jobs:
           new_task_def_arn=$(aws ecs register-task-definition --cli-input-json file://new-task-definition.json --query 'taskDefinition.taskDefinitionArn' --output text)
           echo "::set-output name=new_task_def_arn::$new_task_def_arn"
 
-      # - name: Update ECS service with new task definition
-      #   run: |
-      #     aws ecs update-service \
-      #     --cluster ambisis-staging-cluster \
-      #     --service ambisis-sync-service-staging \
-      #     --task-definition ${{ steps.register-task-def.outputs.new_task_def_arn }}
+      - name: Update ECS service with new task definition
+        run: |
+          aws ecs update-service \
+          --cluster ambisis-staging-cluster \
+          --service ambisis-sync-service-staging \
+          --task-definition ${{ steps.register-task-def.outputs.new_task_def_arn }}
