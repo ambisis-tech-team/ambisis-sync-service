@@ -4,7 +4,7 @@ import type { Request, Response } from "express";
 import { processFile } from "./functions/process_file";
 import { collectFailedAndSuccessfulFiles } from "./functions/collect_failed_and_successful_files";
 import { SPAN_STATUS_ERROR, SPAN_STATUS_OK } from "@sentry/core";
-import { db } from "src/infra/db/db";
+import { db } from "../../infra/db/db";
 
 export const files = (req: Request, res: Response) =>
   startSpan({ name: "file" }, async (span) => {

@@ -1,6 +1,6 @@
-import { insertFile } from "src/domain/file/functions/insert_file";
-import { SyncContext } from "src/usecases/changes/trigger/functions/utils/sync_context";
-import type { ProcessFile } from "src/usecases/files/types/process_file";
+import { insertFile } from "../../../../../domain/file/functions/insert_file";
+import { SyncContext } from "../../../../changes/trigger/functions/utils/sync_context";
+import type { ProcessFile } from "../../../types/process_file";
 
 export const saveFilesToUseInProcessFileTest = async (): Promise<
   ProcessFile[]
