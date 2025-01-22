@@ -4,5 +4,6 @@
     "COMMIT": "/changes/commit",
     "ROLLBACK": "/changes/rollback"
   },
-  "FILES": "/files"
+  "FILES": "/files",
+  "HEALTH_CHECK": "/health_check"
 }
