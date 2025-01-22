@@ -1,4 +1,4 @@
-import type { UserSession } from "@/domain/auth/types/session";
+import type { UserSession } from "src/domain/auth/types/session";
 
 declare global {
   namespace Express {

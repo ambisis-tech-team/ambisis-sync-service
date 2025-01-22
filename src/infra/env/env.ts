@@ -1,7 +1,10 @@
 import { z } from "zod";
+import "dotenv/config";
 
 export const envSchema = z.object({
-  NODE_ENV: z.enum(["development", "production"]).default("development"),
+  NODE_ENV: z
+    .enum(["development", "production", "test"])
+    .default("development"),
   PUBLIC_KEY: z.string().default("12345"),
   AUTH_SERVICE_URL: z.string().default("http://auth_service:3031"),
   AUTH_SERVICE_PUBLIC_KEY: z.string().default("12345"),

@@ -8,10 +8,13 @@ import { env } from "../../../infra/env/env";
 import { FileIsSynced } from "../../../domain/file/types/file";
 import { updateFile } from "../../../domain/file/functions/update_file";
 import fs from "fs";
+import type { ProcessFile } from "../types/process_file";
+import type { DataAccessObject } from "mysql-all-in-one";
 
 export const processFile = async (
+  db: DataAccessObject,
   span: Span,
-  file: Express.Multer.File,
+  file: ProcessFile,
   database: string
 ): Promise<[number, FailedToProcessToFile | null]> =>
   withActiveSpan(span, async () =>
@@ -31,6 +34,7 @@ export const processFile = async (
         });
 
         await updateFile(
+          db,
           { id: archiveId, s3FileStatus: FileIsSynced.SYNCED },
           database
         );

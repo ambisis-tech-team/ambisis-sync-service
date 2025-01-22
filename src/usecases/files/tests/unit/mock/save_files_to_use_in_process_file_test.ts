@@ -1,0 +1,62 @@
+import { insertFile } from "src/domain/file/functions/insert_file";
+import { SyncContext } from "src/usecases/changes/trigger/functions/utils/sync_context";
+import type { ProcessFile } from "src/usecases/files/types/process_file";
+
+export const saveFilesToUseInProcessFileTest = async (): Promise<
+  ProcessFile[]
+> => {
+  await SyncContext.db.query(
+    "CREATE TABLE arquivo (id INT PRIMARY KEY AUTO_INCREMENT, keyS3 VARCHAR(255), s3FileStatus ENUM('synced', 'not_synced') NOT NULL DEFAULT 'synced');"
+  );
+
+  const firstFileId = await insertFile(
+    SyncContext.db,
+    { keyS3: "file_key_s3_1" },
+    SyncContext.database
+  );
+
+  const secondFiledId = await insertFile(
+    SyncContext.db,
+    { keyS3: "file_key_s3_2" },
+    SyncContext.database
+  );
+
+  const thirdFileId = await insertFile(
+    SyncContext.db,
+    { keyS3: "file_key_s3_1" },
+    SyncContext.database
+  );
+
+  const fourthFiledId = await insertFile(
+    SyncContext.db,
+    { keyS3: "file_key_s3_2" },
+    SyncContext.database
+  );
+
+  return [
+    {
+      fieldname: firstFileId.toString(),
+      filename: "file1",
+      mimetype: "text/plain",
+      path: "uploads/test/file1.txt",
+    },
+    {
+      fieldname: secondFiledId.toString(),
+      filename: "file2",
+      mimetype: "text/plain",
+      path: "uploads/test/file2.txt",
+    },
+    {
+      fieldname: thirdFileId.toString(),
+      filename: "file3",
+      mimetype: "text/plain",
+      path: "uploads/test/file3.txt",
+    },
+    {
+      fieldname: fourthFiledId.toString(),
+      filename: "file4",
+      mimetype: "text/plain",
+      path: "uploads/test/file4.txt",
+    },
+  ];
+};

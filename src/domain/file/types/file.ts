@@ -30,3 +30,16 @@ export const isFile = (data: unknown): data is File => {
   if (!success) log(`Object is not an archivw - ${error}`, LogLevel.ERROR);
   return success;
 };
+
+const fileInsertSchema = z.object({
+  ...fileSchema.pick({ keyS3: true }).shape,
+  s3FileStatus: z.nativeEnum(FileIsSynced).optional(),
+});
+
+export type FileInsert = z.infer<typeof fileInsertSchema>;
+
+export const isFileInsert = (data: unknown): data is FileInsert => {
+  const { success, error } = fileInsertSchema.safeParse(data);
+  if (!success) log(`Object is not an archive - ${error}`, LogLevel.ERROR);
+  return success;
+};

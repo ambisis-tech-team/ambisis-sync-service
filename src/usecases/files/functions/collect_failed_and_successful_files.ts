@@ -1,10 +1,11 @@
 import type { FailedToProcessToFile } from "./error/failed_to_process_to_file";
+import type { ProcessFile } from "../types/process_file";
 
 export const collectFailedAndSuccessfulFiles = (
   processedFiles: PromiseSettledResult<
     [number, FailedToProcessToFile | null]
   >[],
-  files: Express.Multer.File[]
+  files: ProcessFile[]
 ) =>
   processedFiles.reduce<{
     successUploadedFiles: Array<number>;

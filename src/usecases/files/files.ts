@@ -4,6 +4,7 @@ import type { Request, Response } from "express";
 import { processFile } from "./functions/process_file";
 import { collectFailedAndSuccessfulFiles } from "./functions/collect_failed_and_successful_files";
 import { SPAN_STATUS_ERROR, SPAN_STATUS_OK } from "@sentry/core";
+import { db } from "src/infra/db/db";
 
 export const files = (req: Request, res: Response) =>
   startSpan({ name: "file" }, async (span) => {
@@ -17,7 +18,7 @@ export const files = (req: Request, res: Response) =>
       const files = req.files as Express.Multer.File[];
 
       const processedFiles = await Promise.allSettled(
-        files.map((file) => processFile(span, file, database))
+        files.map((file) => processFile(db, span, file, database))
       );
 
       const failedSuccessfulFiles = collectFailedAndSuccessfulFiles(
