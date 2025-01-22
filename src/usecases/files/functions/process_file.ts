@@ -7,6 +7,7 @@ import { putObjectCommand } from "../../../infra/s3/put_object_command";
 import { env } from "../../../infra/env/env";
 import { FileIsSynced } from "../../../domain/file/types/file";
 import { updateFile } from "../../../domain/file/functions/update_file";
+import fs from "fs";
 
 export const processFile = async (
   span: Span,
@@ -17,19 +18,28 @@ export const processFile = async (
     startSpan({ name: `file.processFile.${file.filename}` }, async (span) => {
       try {
         const archiveId = Math.abs(Number(file.fieldname));
+
         const archive = await getFileById(archiveId, database);
+
+        const fileBuffer = fs.readFileSync(file.path);
+
         await putObjectCommand({
           Bucket: env.AWS_S3_BUCKET,
+          Body: fileBuffer,
           Key: archive.keyS3,
+          ContentType: file.mimetype,
         });
+
         await updateFile(
           { id: archiveId, s3FileStatus: FileIsSynced.SYNCED },
           database
         );
+
         span.setStatus({
           code: SPAN_STATUS_OK,
           message: `File ${file.filename} uploaded - ${archive.keyS3}`,
         });
+
         return [Number(file.fieldname), null];
       } catch (error) {
         log(

@@ -16,8 +16,6 @@ export const files = (req: Request, res: Response) =>
 
       const files = req.files as Express.Multer.File[];
 
-      console.log(files);
-
       const processedFiles = await Promise.allSettled(
         files.map((file) => processFile(span, file, database))
       );
