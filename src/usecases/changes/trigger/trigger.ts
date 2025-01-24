@@ -18,6 +18,7 @@ import { addSyncProcessTransactionByUserId } from "../functions/add_sync_process
 import { ambisisSpan } from "../../../shared/functions/ambisis_span";
 import { sendEmailError } from "../../../shared/functions/send_email_error";
 import { getSyncProcessTransactionByUserId } from "../functions/get_sync_process_transaction_by_user_id";
+import { doesUserHaveTransaction } from "../functions/does_user_have_transaction";
 
 export const trigger = (req: Request, res: Response) =>
   startSpan({ name: "trigger" }, async (span) => {
@@ -40,31 +41,33 @@ export const trigger = (req: Request, res: Response) =>
           LogLevel.INFO
         );
 
-        try {
-          const { transactionCentral, transactionClient } =
-            getSyncProcessTransactionByUserId(user_id);
+        if (doesUserHaveTransaction(user_id)) {
+          try {
+            const { transactionCentral, transactionClient } =
+              getSyncProcessTransactionByUserId(user_id);
 
-          await transactionCentral.rollback();
-          await transactionClient.rollback();
-        } catch (error) {
-          log(
-            `Failed to rollback stuck sync process  - ${error}`,
-            LogLevel.ERROR
-          );
+            await transactionCentral.rollback();
+            await transactionClient.rollback();
+          } catch (error) {
+            log(
+              `Failed to rollback stuck sync process  - ${error}`,
+              LogLevel.ERROR
+            );
 
-          ambisisSpan(
-            span,
-            {
-              status: "error",
-              message: "Sync process stuck and failed to recover",
-            },
-            { userId: user_id, database: database }
-          );
-          return ambisisResponse(res, 500, "INTERNAL SERVER ERROR");
+            ambisisSpan(
+              span,
+              {
+                status: "error",
+                message: "Sync process stuck and failed to recover",
+              },
+              { userId: user_id, database: database }
+            );
+            return ambisisResponse(res, 500, "INTERNAL SERVER ERROR");
+          }
         }
       }
 
-      if (isRunning(processSync)) {
+      if (isRunning(processSync) && !isProcessSyncStuck(processSync)) {
         log(
           `Sync already running - userId: ${user_id} - database: ${database}`,
           LogLevel.INFO

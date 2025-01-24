@@ -10,6 +10,8 @@ import { ProcessSyncStatus, type ProcessSync } from "../../types/sync_process";
  */
 export const isProcessSyncStuck = (processSync: ProcessSync): boolean =>
   processSync.status === ProcessSyncStatus.PROCESSING &&
-  processSync.lastSync !== null &&
-  processSync.lastSync.getTime() < processSync.updatedAt.getTime() &&
-  processSync.updatedAt.getTime() - new Date().getTime() > Time.MINUTE * 5;
+  (processSync.lastSync == null ||
+    (processSync.lastSync !== null &&
+      processSync.lastSync.getTime() < processSync.updatedAt.getTime() &&
+      processSync.updatedAt.getTime() - new Date().getTime() >
+        Time.MINUTE * 5));
