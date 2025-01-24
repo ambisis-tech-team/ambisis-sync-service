@@ -25,61 +25,55 @@ Coisas testas e problemas pendentes SYNC 3.0
 Coisas testadas:
 Cada teste vai ser considerado criando todas as entidades possíveis e preenchendo todos os campos;
 
-- [ ] Empresas
-
-  - [ ] Criar no mobile
-  - [ ] Editar no mobile
-  - [ ] Criar no web
-  - [ ] Editar no web
-  - [ ] Empreendimentos
-    - [ ] Criar no mobile
-    - [ ] Editar no mobile
-    - [ ] Criar no web
-    - [ ] Editar no web
-
+- [x] Empresas
+- [x] Criar no mobile
+- [x] Editar no mobile
+- [x] Criar no web
+- [x] Editar no web
+- [x] Empreendimentos
+  - [x] Criar no mobile
+  - [x] Editar no mobile
+  - [x] Criar no web
+  - [x] Editar no web
 - [ ] Licenças
-
-  - [ ] Editar no mobile
-  - [ ] Criar no mobile
-  - [ ] Criar no web
-  - [ ] Editar no web
-  - [ ] Fases
-    - [ ] Editar no mobile
-    - [ ] Criar no mobile
-    - [ ] Editar no web
-    - [ ] Criar no web
-
-- [ ] Vistorias:
-
+- [ ] Editar no mobile
+- [x] Criar no mobile
+- [ ] Criar no web
+- [ ] Editar no web
+- [x] Fases
   - [x] Editar no mobile
   - [x] Criar no mobile
-  - [ ] Editar no web
-  - [ ] Criar no web
-  - [ ] Controles
-    - [ ] Criar no mobile
-    - [ ] Editar no mobile
-    - [ ] Criar no web
-    - [ ] Editar no web
-  - [ ] Lista de controles
-    - [ ] Criar no mobile
-    - [ ] Editar no mobile
-    - [ ] Criar no web
-    - [ ] Editar no web
-
+  - [x] Editar no web
+  - [x] Criar no web
+- [x] Vistorias:
+- [x] Editar no mobile
+- [x] Criar no mobile
+- [x] Editar no web
+- [x] Criar no web
+- [x] Controles
+  - [x] Criar no mobile
+  - [x] Editar no mobile
+  - [x] Criar no web
+  - [x] Editar no web
+- [x] Lista de controles
+  - [x] Criar no mobile
+  - [x] Editar no mobile
+  - [x] Criar no web
+  - [x] Editar no web
 - [ ] ESG
-  - [ ] Unidade de medida
-    - [ ] Criar no mobile
-    - [ ] Editar no mobile
-    - [ ] Criar no web
-    - [ ] Editar no web
+- [ ] Unidade de medida
+  - [ ] Criar no mobile
+  - [ ] Editar no mobile
+  - [ ] Criar no web
+  - [ ] Editar no web
   - [ ] Metas
     - [ ] Criar no mobile
     - [ ] Editar no mobile
     - [ ] Criar no web
     - [ ] Editar no web
   - [ ] Associar meta
-    - Associar no mobile
-    - Associar no web
+    - [ ] Associar no mobile
+    - [ ] Associar no web
 
 Lista de fixes pendentes a serem feitos no SYNC 3.0:
 
