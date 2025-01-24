@@ -40,18 +40,28 @@ export const trigger = (req: Request, res: Response) =>
           LogLevel.INFO
         );
 
-        const { transactionCentral, transactionClient } =
-          getSyncProcessTransactionByUserId(user_id);
+        try {
+          const { transactionCentral, transactionClient } =
+            getSyncProcessTransactionByUserId(user_id);
 
-        await transactionCentral.rollback();
-        await transactionClient.rollback();
+          await transactionCentral.rollback();
+          await transactionClient.rollback();
+        } catch (error) {
+          log(
+            `Failed to rollback stuck sync process  - ${error}`,
+            LogLevel.ERROR
+          );
 
-        ambisisSpan(
-          span,
-          { status: "error", message: "Sync process stuck" },
-          { userId: user_id, database: database }
-        );
-        return ambisisResponse(res, 500, "INTERNAL SERVER ERROR");
+          ambisisSpan(
+            span,
+            {
+              status: "error",
+              message: "Sync process stuck and failed to recover",
+            },
+            { userId: user_id, database: database }
+          );
+          return ambisisResponse(res, 500, "INTERNAL SERVER ERROR");
+        }
       }
 
       if (isRunning(processSync)) {
@@ -73,6 +83,9 @@ export const trigger = (req: Request, res: Response) =>
         id: processSync.id,
         status: ProcessSyncStatus.PROCESSING,
       });
+
+      const { transactionCentral, transactionClient } =
+        await addSyncProcessTransactionByUserId(user_id, database);
 
       log(
         `Starting sync - userId: ${user_id} - database: ${database}`,
@@ -102,9 +115,6 @@ export const trigger = (req: Request, res: Response) =>
         });
         return ambisisResponse(res, 500, "INTERNAL SERVER ERROR");
       }
-
-      const { transactionCentral, transactionClient } =
-        await addSyncProcessTransactionByUserId(user_id, database);
 
       const snapshotClient = await db.startTransaction(database);
       const snapshotCentral = await db.startTransaction("ambisis");
