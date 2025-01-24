@@ -17,6 +17,7 @@ import { db } from "../../../infra/db/db";
 import { addSyncProcessTransactionByUserId } from "../functions/add_sync_process_transaction_by_user_id";
 import { ambisisSpan } from "../../../shared/functions/ambisis_span";
 import { sendEmailError } from "../../../shared/functions/send_email_error";
+import { getSyncProcessTransactionByUserId } from "../functions/get_sync_process_transaction_by_user_id";
 
 export const trigger = (req: Request, res: Response) =>
   startSpan({ name: "trigger" }, async (span) => {
@@ -32,7 +33,28 @@ export const trigger = (req: Request, res: Response) =>
       }
 
       const processSync = await getSyncProcessByUser(user_id);
-      if (isRunning(processSync) && !isProcessSyncStuck(processSync)) {
+
+      if (isProcessSyncStuck(processSync)) {
+        log(
+          `Sync process stuck - userId: ${user_id} - database: ${database}`,
+          LogLevel.INFO
+        );
+
+        const { transactionCentral, transactionClient } =
+          getSyncProcessTransactionByUserId(user_id);
+
+        await transactionCentral.rollback();
+        await transactionClient.rollback();
+
+        ambisisSpan(
+          span,
+          { status: "error", message: "Sync process stuck" },
+          { userId: user_id, database: database }
+        );
+        return ambisisResponse(res, 500, "INTERNAL SERVER ERROR");
+      }
+
+      if (isRunning(processSync)) {
         log(
           `Sync already running - userId: ${user_id} - database: ${database}`,
           LogLevel.INFO

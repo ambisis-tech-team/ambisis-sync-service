@@ -35,11 +35,11 @@ Cada teste vai ser considerado criando todas as entidades possíveis e preenchen
   - [x] Editar no mobile
   - [x] Criar no web
   - [x] Editar no web
-- [ ] Licenças
-- [ ] Editar no mobile
+- [x] Licenças
+- [x] Editar no mobile
 - [x] Criar no mobile
-- [ ] Criar no web
-- [ ] Editar no web
+- [x] Criar no web
+- [x] Editar no web
 - [x] Fases
   - [x] Editar no mobile
   - [x] Criar no mobile
@@ -60,20 +60,20 @@ Cada teste vai ser considerado criando todas as entidades possíveis e preenchen
   - [x] Editar no mobile
   - [x] Criar no web
   - [x] Editar no web
-- [ ] ESG
-- [ ] Unidade de medida
-  - [ ] Criar no mobile
-  - [ ] Editar no mobile
-  - [ ] Criar no web
-  - [ ] Editar no web
-  - [ ] Metas
-    - [ ] Criar no mobile
-    - [ ] Editar no mobile
-    - [ ] Criar no web
-    - [ ] Editar no web
-  - [ ] Associar meta
-    - [ ] Associar no mobile
-    - [ ] Associar no web
+- [x] ESG
+  - [x] Unidade de medida
+    - [x] Criar no mobile
+    - [x] Editar no mobile
+    - [x] Criar no web
+    - [x] Editar no web
+  - [x] Metas
+    - [x] Criar no mobile
+    - [x] Editar no mobile
+    - [x] Criar no web
+    - [x] Editar no web
+  - [x] Associar meta
+    - [x] Associar no mobile
+    - [x] Associar no web
 
 Lista de fixes pendentes a serem feitos no SYNC 3.0:
 
