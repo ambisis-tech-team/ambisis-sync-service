@@ -1,10 +1,10 @@
 import type { Application } from "express";
 import { middleware } from "../middleware";
 import { router } from "../routes";
-import { healthCheckRoute } from "../routes/health_check";
+import { publicRouter } from "../routes/public_routes";
 
 export const server = (app: Application) => {
-  healthCheckRoute(app);
+  publicRouter(app);
 
   middleware(app);
 
