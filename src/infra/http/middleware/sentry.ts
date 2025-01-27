@@ -1,8 +1,9 @@
 import { expressIntegration, init } from "@sentry/node";
+import { env } from "../../env/env";
 
 export const sentry = () =>
   init({
-    dsn: process.env.SENTRY_DSN,
-    tracesSampleRate: 0.1,
+    dsn: env.SENTRY_DSN,
+    tracesSampleRate: 1.0,
     integrations: [expressIntegration()],
   });

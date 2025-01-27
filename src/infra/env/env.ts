@@ -22,6 +22,8 @@ export const envSchema = z.object({
   AWS_S3_KEY: z.string(),
   AWS_S3_SECRET: z.string(),
   AWS_S3_BUCKET: z.string(),
+
+  SENTRY_DSN: z.string(),
 });
 
 export const env = envSchema.parse(process.env);
