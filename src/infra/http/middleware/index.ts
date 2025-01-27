@@ -11,7 +11,7 @@ export const middleware = (app: Application) => {
   sentry();
   cors(app);
   multer(app);
-  bodyParser(app);
+  // bodyParser(app);
   ambisisMiddlewarePackage(app, { publicKey: env.PUBLIC_KEY });
   auth(app);
 };
