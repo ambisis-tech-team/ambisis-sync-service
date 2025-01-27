@@ -2,10 +2,10 @@ import { DataAccessObject } from "mysql-all-in-one";
 import { env } from "../env/env";
 
 const db = new DataAccessObject({
-  host: env.DATABASE_HOST,
-  port: env.DATABASE_PORT,
-  user: env.DATABASE_USER,
-  password: env.DATABASE_PASSWORD,
+  host: env.DB_HOST,
+  port: env.DB_PORT,
+  user: env.DB_USER,
+  password: env.DB_PASSWORD,
   timezone: "Z",
 });
 
