@@ -17,18 +17,11 @@ export const commit = (req: Request, res: Response) =>
         LogLevel.INFO
       );
 
-      const processSync = await getSyncProcessByUser(user_id);
-
       const { transactionCentral, transactionClient } =
         getSyncProcessTransactionByUserId(user_id);
 
       await transactionCentral.commit();
       await transactionClient.commit();
-
-      await updateSyncProcess({
-        id: processSync.id,
-        status: ProcessSyncStatus.FINISHED,
-      });
 
       log(
         `Commited sync transaction - ${user_id} - ${database}`,

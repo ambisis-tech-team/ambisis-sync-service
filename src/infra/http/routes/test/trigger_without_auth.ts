@@ -1,16 +1,9 @@
 import type { Request, Response } from "express";
 import { startSpan } from "@sentry/node";
 import { ambisisResponse, log, LogLevel } from "ambisis_node_helper";
-import { getSyncProcessByUser } from "../../../../domain/process_sync/functions/db/get_sync_process_by_user";
-import { updateSyncProcess } from "../../../../domain/process_sync/functions/db/update_sync_process";
-import { isProcessSyncStuck } from "../../../../domain/process_sync/functions/domain/is_process_stuck";
-import { isRunning } from "../../../../domain/process_sync/functions/domain/is_running";
-import { ProcessSyncStatus } from "../../../../domain/process_sync/types/sync_process";
 import { ambisisSpan } from "../../../../shared/functions/ambisis_span";
 import { sendEmailError } from "../../../../shared/functions/send_email_error";
 import { addSyncProcessTransactionByUserId } from "../../../../usecases/changes/functions/add_sync_process_transaction_by_user_id";
-import { doesUserHaveTransaction } from "../../../../usecases/changes/functions/does_user_have_transaction";
-import { getSyncProcessTransactionByUserId } from "../../../../usecases/changes/functions/get_sync_process_transaction_by_user_id";
 import { handleErrors } from "../../../../usecases/changes/trigger/functions/handle_errors";
 import { mobileCentralTablesToSync } from "../../../../usecases/changes/trigger/functions/pull_changes/constants/mobile_central_tables_to_sync";
 import { mobileClientTablesToSync } from "../../../../usecases/changes/trigger/functions/pull_changes/constants/mobile_client_tables_to_sync";
@@ -32,60 +25,6 @@ export const trigger = (req: Request, res: Response) =>
         );
         return ambisisResponse(res, 422, "UNPROCESSABLE ENTITY");
       }
-
-      const processSync = await getSyncProcessByUser(user_id);
-
-      if (isProcessSyncStuck(processSync)) {
-        log(
-          `Sync process stuck - userId: ${user_id} - database: ${database}`,
-          LogLevel.INFO
-        );
-
-        if (doesUserHaveTransaction(user_id)) {
-          try {
-            const { transactionCentral, transactionClient } =
-              getSyncProcessTransactionByUserId(user_id);
-
-            await transactionCentral.rollback();
-            await transactionClient.rollback();
-          } catch (error) {
-            log(
-              `Failed to rollback stuck sync process  - ${error}`,
-              LogLevel.ERROR
-            );
-
-            ambisisSpan(
-              span,
-              {
-                status: "error",
-                message: "Sync process stuck and failed to recover",
-              },
-              { userId: user_id, database: database }
-            );
-            return ambisisResponse(res, 500, "INTERNAL SERVER ERROR");
-          }
-        }
-      }
-
-      if (isRunning(processSync) && !isProcessSyncStuck(processSync)) {
-        log(
-          `Sync already running - userId: ${user_id} - database: ${database}`,
-          LogLevel.INFO
-        );
-        ambisisSpan(
-          span,
-          { status: "ok", message: "Sync already running" },
-          { userId: user_id, database: database }
-        );
-        return ambisisResponse(res, 200, "SUCCESS", {
-          message: "Sync already running",
-        });
-      }
-
-      await updateSyncProcess({
-        id: processSync.id,
-        status: ProcessSyncStatus.PROCESSING,
-      });
 
       const { transactionCentral, transactionClient } =
         await addSyncProcessTransactionByUserId(user_id, database);
