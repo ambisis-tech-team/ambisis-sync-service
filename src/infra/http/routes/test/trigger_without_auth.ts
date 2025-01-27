@@ -15,162 +15,168 @@ import { db } from "../../../db/db";
 
 export const trigger = (req: Request, res: Response) =>
   startSpan({ name: "trigger" }, async (span) => {
-    const database = req.body.database;
-    const user_id = req.body.user_id;
     try {
-      if (!isSyncRequestSchema(req.body)) {
-        ambisisSpan(
-          span,
-          { status: "error", message: "Malformed sync request" },
-          { userId: user_id, database: database }
+      console.log(req.body);
+
+      const database = req.body.database;
+      const user_id = req.body.user_id;
+      try {
+        if (!isSyncRequestSchema(req.body)) {
+          ambisisSpan(
+            span,
+            { status: "error", message: "Malformed sync request" },
+            { userId: user_id, database: database }
+          );
+          return ambisisResponse(res, 422, "UNPROCESSABLE ENTITY");
+        }
+
+        const { transactionCentral, transactionClient } =
+          await addSyncProcessTransactionByUserId(user_id, database);
+
+        log(
+          `Starting sync - userId: ${user_id} - database: ${database}`,
+          LogLevel.INFO
         );
-        return ambisisResponse(res, 422, "UNPROCESSABLE ENTITY");
-      }
 
-      const { transactionCentral, transactionClient } =
-        await addSyncProcessTransactionByUserId(user_id, database);
-
-      log(
-        `Starting sync - userId: ${user_id} - database: ${database}`,
-        LogLevel.INFO
-      );
-
-      const {
-        dataChangesClientDb,
-        deletedClientDb,
-        lastSyncDate,
-        syncLogId,
-        dataChangesCentralDb,
-        deletedCentralDb,
-        syncedCentralDbTables,
-        syncedClientDbTables,
-      } = req.body;
-
-      const foreignKeys = await mapForeignKeys(span, database);
-      if (foreignKeys.isErr()) {
-        await handleErrors({
-          span,
+        const {
+          dataChangesClientDb,
+          deletedClientDb,
           lastSyncDate,
           syncLogId,
-          user_id,
-          database,
-          err: foreignKeys,
-        });
-        return ambisisResponse(res, 500, "INTERNAL SERVER ERROR");
-      }
+          dataChangesCentralDb,
+          deletedCentralDb,
+          syncedCentralDbTables,
+          syncedClientDbTables,
+        } = req.body;
 
-      const snapshotClient = await db.startTransaction(database);
-      const snapshotCentral = await db.startTransaction("ambisis");
+        const foreignKeys = await mapForeignKeys(span, database);
+        if (foreignKeys.isErr()) {
+          await handleErrors({
+            span,
+            lastSyncDate,
+            syncLogId,
+            user_id,
+            database,
+            err: foreignKeys,
+          });
+          return ambisisResponse(res, 500, "INTERNAL SERVER ERROR");
+        }
 
-      const [pulledChanges, pushedClientChanges, pushedCentralChanges] =
-        await Promise.all([
-          pullChanges(
+        const snapshotClient = await db.startTransaction(database);
+        const snapshotCentral = await db.startTransaction("ambisis");
+
+        const [pulledChanges, pushedClientChanges, pushedCentralChanges] =
+          await Promise.all([
+            pullChanges(
+              snapshotClient,
+              snapshotCentral,
+              span,
+              database,
+              lastSyncDate,
+              syncedClientDbTables,
+              syncedCentralDbTables,
+              foreignKeys.unwrap(),
+              mobileCentralTablesToSync,
+              mobileClientTablesToSync
+            ),
+            pushChanges(
+              transactionClient,
+              span,
+              dataChangesClientDb,
+              deletedClientDb,
+              foreignKeys.unwrap(),
+              database
+            ),
+            pushChanges(
+              transactionCentral,
+              span,
+              dataChangesCentralDb,
+              deletedCentralDb,
+              foreignKeys.unwrap(),
+              database
+            ),
+          ]);
+
+        if (pushedClientChanges.isErr()) {
+          await handleErrors({
+            span,
+            err: pushedClientChanges,
+            lastSyncDate,
+            syncLogId,
+            user_id,
+            database,
             snapshotClient,
             snapshotCentral,
-            span,
-            database,
-            lastSyncDate,
-            syncedClientDbTables,
-            syncedCentralDbTables,
-            foreignKeys.unwrap(),
-            mobileCentralTablesToSync,
-            mobileClientTablesToSync
-          ),
-          pushChanges(
-            transactionClient,
-            span,
-            dataChangesClientDb,
-            deletedClientDb,
-            foreignKeys.unwrap(),
-            database
-          ),
-          pushChanges(
-            transactionCentral,
-            span,
-            dataChangesCentralDb,
-            deletedCentralDb,
-            foreignKeys.unwrap(),
-            database
-          ),
-        ]);
-
-      if (pushedClientChanges.isErr()) {
-        await handleErrors({
-          span,
-          err: pushedClientChanges,
-          lastSyncDate,
-          syncLogId,
-          user_id,
-          database,
-          snapshotClient,
-          snapshotCentral,
-        });
-        return ambisisResponse(res, 500, "INTERNAL SERVER ERROR");
-      }
-
-      if (pushedCentralChanges.isErr()) {
-        await handleErrors({
-          span,
-          err: pushedCentralChanges,
-          lastSyncDate,
-          syncLogId,
-          user_id,
-          database,
-          snapshotClient,
-          snapshotCentral,
-        });
-        return ambisisResponse(res, 500, "INTERNAL SERVER ERROR");
-      }
-
-      if (pulledChanges.isErr()) {
-        await handleErrors({
-          span,
-          err: pulledChanges,
-          lastSyncDate,
-          syncLogId,
-          user_id,
-          database,
-          snapshotClient,
-          snapshotCentral,
-        });
-        return ambisisResponse(res, 500, "INTERNAL SERVER ERROR");
-      }
-
-      await snapshotClient.commit();
-      await snapshotCentral.commit();
-
-      ambisisSpan(
-        span,
-        { status: "ok" },
-        {
-          lastSyncDate: lastSyncDate,
-          syncLogId: syncLogId,
-          userId: user_id,
-          database: database,
+          });
+          return ambisisResponse(res, 500, "INTERNAL SERVER ERROR");
         }
-      );
 
-      log(
-        `Finished sync - userId: ${user_id} - database: ${database}`,
-        LogLevel.INFO
-      );
+        if (pushedCentralChanges.isErr()) {
+          await handleErrors({
+            span,
+            err: pushedCentralChanges,
+            lastSyncDate,
+            syncLogId,
+            user_id,
+            database,
+            snapshotClient,
+            snapshotCentral,
+          });
+          return ambisisResponse(res, 500, "INTERNAL SERVER ERROR");
+        }
 
-      return ambisisResponse(res, 200, "SUCCESS", {
-        ...pulledChanges.unwrap(),
-        insertedClientIds: pushedClientChanges.unwrap(),
-        insertedCentralIds: pushedCentralChanges.unwrap(),
-      });
+        if (pulledChanges.isErr()) {
+          await handleErrors({
+            span,
+            err: pulledChanges,
+            lastSyncDate,
+            syncLogId,
+            user_id,
+            database,
+            snapshotClient,
+            snapshotCentral,
+          });
+          return ambisisResponse(res, 500, "INTERNAL SERVER ERROR");
+        }
+
+        await snapshotClient.commit();
+        await snapshotCentral.commit();
+
+        ambisisSpan(
+          span,
+          { status: "ok" },
+          {
+            lastSyncDate: lastSyncDate,
+            syncLogId: syncLogId,
+            userId: user_id,
+            database: database,
+          }
+        );
+
+        log(
+          `Finished sync - userId: ${user_id} - database: ${database}`,
+          LogLevel.INFO
+        );
+
+        return ambisisResponse(res, 200, "SUCCESS", {
+          ...pulledChanges.unwrap(),
+          insertedClientIds: pushedClientChanges.unwrap(),
+          insertedCentralIds: pushedCentralChanges.unwrap(),
+        });
+      } catch (error) {
+        sendEmailError(
+          "Erro inesperado ao rodando o sync 3.0",
+          `Ocorreu um erro não tratado ao rodar o sync 3.0 - userId: ${user_id} - database: ${database} - ${error}`
+        );
+        log(` Unexpected error ${error} - sync.ts`, LogLevel.ERROR);
+        ambisisSpan(
+          span,
+          { status: "error", message: "Unexpected error" },
+          { userId: user_id, database: database }
+        );
+        return ambisisResponse(res, 500, "INTERNAL SERVER ERROR");
+      }
     } catch (error) {
-      sendEmailError(
-        "Erro inesperado ao rodando o sync 3.0",
-        `Ocorreu um erro não tratado ao rodar o sync 3.0 - userId: ${user_id} - database: ${database} - ${error}`
-      );
-      log(` Unexpected error ${error} - sync.ts`, LogLevel.ERROR);
-      ambisisSpan(
-        span,
-        { status: "error", message: "Unexpected error" },
-        { userId: user_id, database: database }
-      );
-      return ambisisResponse(res, 500, "INTERNAL SERVER ERROR");
+      console.error(error);
     }
   });
