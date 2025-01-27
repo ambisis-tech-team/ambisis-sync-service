@@ -71,6 +71,7 @@ export const extractUpdatedAndInsertedRowsFromDataChanges = async (
               await Promise.all(
                 change.rows.map((row) =>
                   extractSwapMappingAndReplaceFksFromRow(
+                    change.table,
                     insertedAndUpdatedMappedToTable,
                     row,
                     change,

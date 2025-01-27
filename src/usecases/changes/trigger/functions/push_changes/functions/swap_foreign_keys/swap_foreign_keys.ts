@@ -40,7 +40,7 @@ export const swapForeignKeys = async (
                 }
                 const mappingFk = foreignKeyMapping[table];
                 if (!mappingFk) {
-                  if (guessIfColumnIsForeignKey(column)) {
+                  if (guessIfColumnIsForeignKey(table, column)) {
                     const extractedTable = extractTableFromColumn(column);
                     if (!extractedTable) continue;
                     const fkToSwap = insertedIdsByTable[extractedTable][value];

@@ -7,6 +7,7 @@ import type { MappedForeignKeys } from "../../map_foreign_keys/types/mapped_fore
 import { guessIfColumnIsForeignKey } from "../../../../guess_if_column_is_foreign_key/guess_if_column_is_foreign_key";
 
 export const extractSwapMappingAndReplaceFksFromRow = async (
+  table: string,
   acc: InsertedAndUpdatedChangesMappedToTable,
   row: DataChanges[number]["rows"][number],
   iter: DataChanges[number],
@@ -37,7 +38,7 @@ export const extractSwapMappingAndReplaceFksFromRow = async (
           ([column]) => !foreignKeys.some((fk) => fk.parentColumn === column)
         );
         for (const [column, value] of rowWithoutForeignKeys) {
-          if (guessIfColumnIsForeignKey(column)) {
+          if (guessIfColumnIsForeignKey(table, column)) {
             if (typeof value !== "number") continue;
             if (isNullOrReferencingSyncedRow(value)) {
               row[column] = Math.abs(value);
@@ -51,7 +52,7 @@ export const extractSwapMappingAndReplaceFksFromRow = async (
       },
       isNone: () => {
         for (const [column, value] of Object.entries(row)) {
-          if (guessIfColumnIsForeignKey(column)) {
+          if (guessIfColumnIsForeignKey(table, column)) {
             if (typeof value !== "number") continue;
             if (isNullOrReferencingSyncedRow(value)) {
               row[column] = Math.abs(value);
