@@ -7,7 +7,6 @@ import { getSyncProcessTransactionByUserId } from "../../../../usecases/changes/
 export const commit = (req: Request, res: Response) =>
   startSpan({ name: "commit" }, async (span) => {
     try {
-      console.log(req.body);
       const database = req.body.database;
       const user_id = req.body.user_id;
 

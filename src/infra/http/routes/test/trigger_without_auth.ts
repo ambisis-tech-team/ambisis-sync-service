@@ -16,8 +16,6 @@ import { db } from "../../../db/db";
 export const trigger = (req: Request, res: Response) =>
   startSpan({ name: "trigger" }, async (span) => {
     try {
-      console.log(req.body);
-
       const database = req.body.database;
       const user_id = req.body.user_id;
       try {
