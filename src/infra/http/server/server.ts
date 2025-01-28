@@ -1,15 +1,13 @@
 import type { Application } from "express";
-import { middleware } from "../middleware";
-import { router } from "../routes";
-import { publicRouter } from "../routes/public_routes";
-import bodyParser from "../middleware/body_parser";
+import { authMiddleware, middleware } from "../middleware";
+import { privateRouter, publicRouter } from "../routes";
 
 export const server = (app: Application) => {
-  bodyParser(app);
+  middleware(app);
 
   publicRouter(app);
 
-  middleware(app);
+  authMiddleware(app);
 
-  router(app);
+  privateRouter(app);
 };

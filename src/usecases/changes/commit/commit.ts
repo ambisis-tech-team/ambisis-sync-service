@@ -1,7 +1,7 @@
 import { getSyncProcessByUser } from "../../../domain/process_sync/functions/db/get_sync_process_by_user";
 import { updateSyncProcess } from "../../../domain/process_sync/functions/db/update_sync_process";
 import { ProcessSyncStatus } from "../../../domain/process_sync/types/sync_process";
-import { SPAN_STATUS_ERROR } from "@sentry/core";
+import { SPAN_STATUS_ERROR, SPAN_STATUS_OK } from "@sentry/core";
 import { startSpan } from "@sentry/node";
 import { ambisisResponse, log, LogLevel } from "ambisis_node_helper";
 import type { Request, Response } from "express";
@@ -33,6 +33,11 @@ export const commit = (req: Request, res: Response) =>
         `Commited sync transaction - ${user_id} - ${database}`,
         LogLevel.INFO
       );
+
+      span.setStatus({
+        code: SPAN_STATUS_OK,
+        message: "Internal server error",
+      });
 
       return ambisisResponse(res, 200, "OK");
     } catch (error) {
