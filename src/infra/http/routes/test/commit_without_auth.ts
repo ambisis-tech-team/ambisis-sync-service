@@ -44,8 +44,8 @@ export const commit = (req: Request, res: Response) =>
           message: "Internal server error",
         });
         log(
-          `Unexpected error while trying to commit sync transactions - userId: ${user_id} - database: ${database}`,
-          LogLevel.INFO
+          `Unexpected error while trying to commit sync transactions - userId: ${user_id} - database: ${database} - ${error}`,
+          LogLevel.ERROR
         );
         return ambisisResponse(res, 500, "INTERNAL SERVER ERROR");
       }

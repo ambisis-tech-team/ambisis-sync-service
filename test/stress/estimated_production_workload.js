@@ -1,11 +1,10 @@
 import http from "k6/http";
-import { sleep } from "k6";
 
 export const options = {
   stages: [
-    { target: 100, duration: "10m" },
-    { target: 250, duration: "10m" },
-    { target: 500, duration: "10m" },
+    { target: 100, duration: "5m" },
+    { target: 250, duration: "5m" },
+    { target: 500, duration: "5m" },
   ],
 };
 

@@ -5,10 +5,15 @@ export const addSyncProcessTransactionByUserId = async (
   userId: number,
   database: string
 ) => {
-  const txn = {
-    transactionClient: await db.startTransaction(database),
-    transactionCentral: await db.startTransaction("ambisis"),
-  };
-  syncProcessTransactionsByUserId.set(userId, txn);
-  return txn;
+  try {
+    const txn = {
+      transactionClient: await db.startTransaction(database),
+      transactionCentral: await db.startTransaction("ambisis"),
+    };
+    syncProcessTransactionsByUserId.set(userId, txn);
+    return txn;
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
 };
