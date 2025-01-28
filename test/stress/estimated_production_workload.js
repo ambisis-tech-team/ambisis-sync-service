@@ -2,14 +2,14 @@ import http from "k6/http";
 
 export const options = {
   stages: [
-    { target: 100, duration: "1m" },
-    { target: 250, duration: "2m" },
-    { target: 500, duration: "5m" },
+    { target: 100, duration: "10m" },
+    { target: 250, duration: "10m" },
+    { target: 500, duration: "10m" },
   ],
 };
 
 export default function () {
-  const userId = Math.floor(Math.random() * 1000000);
+  const userId = new Date().getTime();
 
   const payloadTrigger = {
     dataChangesCentralDb: [],
