@@ -7,6 +7,7 @@ const db = new DataAccessObject({
   user: env.DB_USER,
   password: env.DB_PASSWORD,
   timezone: "Z",
+  connectionLimit: 500,
 });
 
 export { db };
