@@ -1,4 +1,5 @@
 import http from "k6/http";
+import { sleep } from 'k6';
 
 export const options = {
   stages: [
@@ -52,4 +53,6 @@ export default function () {
       },
     }
   );
+
+  sleep(60);
 }
