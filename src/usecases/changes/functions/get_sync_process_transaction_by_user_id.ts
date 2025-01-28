@@ -15,3 +15,7 @@ export const getSyncProcessTransactionByUserId = (userId: number) => {
   if (!txn) throw new ExpectedToFindTransactionLinkedToUserId();
   return txn;
 };
+
+export const removeSyncProcessTransactionByUserId = (userId: number) => {
+  syncProcessTransactionsByUserId.delete(userId);
+};

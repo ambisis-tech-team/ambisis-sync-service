@@ -1,8 +1,11 @@
-import { SPAN_STATUS_ERROR } from "@sentry/core";
+import { SPAN_STATUS_ERROR, SPAN_STATUS_OK } from "@sentry/core";
 import { startSpan } from "@sentry/node";
 import { ambisisResponse, log, LogLevel } from "ambisis_node_helper";
 import type { Request, Response } from "express";
-import { getSyncProcessTransactionByUserId } from "../../../../usecases/changes/functions/get_sync_process_transaction_by_user_id";
+import {
+  getSyncProcessTransactionByUserId,
+  removeSyncProcessTransactionByUserId,
+} from "../../../../usecases/changes/functions/get_sync_process_transaction_by_user_id";
 
 export const commit = (req: Request, res: Response) =>
   startSpan({ name: "commit" }, async (span) => {
@@ -21,6 +24,13 @@ export const commit = (req: Request, res: Response) =>
 
         await transactionCentral.commit();
         await transactionClient.commit();
+
+        removeSyncProcessTransactionByUserId(user_id);
+
+        span.setStatus({
+          code: SPAN_STATUS_OK,
+          message: "Sync transaction commited",
+        });
 
         log(
           `Commited sync transaction - ${user_id} - ${database}`,

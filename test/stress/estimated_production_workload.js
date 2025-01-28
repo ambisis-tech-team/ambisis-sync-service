@@ -27,7 +27,7 @@ export default function () {
 
   http.post(
     "https://api.ambisis.com.br/test/trigger",
-    payloadTrigger,
+    JSON.stringify(payloadTrigger),
     {
       headers: {
         "Content-Type": "application/json",
@@ -44,7 +44,7 @@ export default function () {
 
   http.post(
     "https://api.ambisis.com.br/test/commit",
-    payloadCommit,
+    JSON.stringify(payloadCommit),
     {
       headers: {
         "Content-Type": "application/json",
@@ -53,6 +53,4 @@ export default function () {
       },
     }
   );
-
-  sleep(60);
 }
