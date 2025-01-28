@@ -28,12 +28,8 @@ export const trigger = (req: Request, res: Response) =>
           return ambisisResponse(res, 422, "UNPROCESSABLE ENTITY");
         }
 
-        console.log("Starting transactions");
-
         const { transactionCentral, transactionClient } =
           await addSyncProcessTransactionByUserId(user_id, database);
-
-        console.log("Started transactions");
 
         log(
           `Starting sync - userId: ${user_id} - database: ${database}`,
@@ -51,8 +47,6 @@ export const trigger = (req: Request, res: Response) =>
           syncedClientDbTables,
         } = req.body;
 
-        console.log("Got the body");
-
         const foreignKeys = await mapForeignKeys(span, database);
         if (foreignKeys.isErr()) {
           await handleErrors({
@@ -66,12 +60,8 @@ export const trigger = (req: Request, res: Response) =>
           return ambisisResponse(res, 500, "INTERNAL SERVER ERROR");
         }
 
-        console.log("Grabbed foreing key mapping");
-
         const snapshotClient = await db.startTransaction(database);
         const snapshotCentral = await db.startTransaction("ambisis");
-
-        console.log("Grabbed snapshots");
 
         const [pulledChanges, pushedClientChanges, pushedCentralChanges] =
           await Promise.all([
@@ -104,8 +94,6 @@ export const trigger = (req: Request, res: Response) =>
               database
             ),
           ]);
-
-        console.log("Awaited all promises");
 
         if (pushedClientChanges.isErr()) {
           await handleErrors({
@@ -149,12 +137,8 @@ export const trigger = (req: Request, res: Response) =>
           return ambisisResponse(res, 500, "INTERNAL SERVER ERROR");
         }
 
-        console.log("Verified no errors");
-
         await snapshotClient.commit();
         await snapshotCentral.commit();
-
-        console.log("Committing transactions");
 
         ambisisSpan(
           span,
