@@ -2,8 +2,8 @@ import http from "k6/http";
 
 export const options = {
   stages: [
-    { target: 100, duration: "5m" },
-    { target: 250, duration: "5m" },
+    { target: 100, duration: "1m" },
+    { target: 250, duration: "2m" },
     { target: 500, duration: "5m" },
   ],
 };
