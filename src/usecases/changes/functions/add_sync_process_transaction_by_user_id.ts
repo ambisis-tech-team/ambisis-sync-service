@@ -6,7 +6,11 @@ export const addSyncProcessTransactionByUserId = async (
   database: string
 ) => {
   try {
-    console.log(`Starting transactions - ${syncProcessTransactionsByUserId}`);
+    console.log(
+      `Starting transactions - ${JSON.stringify(
+        syncProcessTransactionsByUserId
+      )}`
+    );
     console.log("Starting transactions-central");
     const transactionCentral = await db.startTransaction("ambisis");
     console.log("Starting transactions-client");
