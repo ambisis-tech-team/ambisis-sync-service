@@ -17,5 +17,6 @@ export const getSyncProcessTransactionByUserId = (userId: number) => {
 };
 
 export const removeSyncProcessTransactionByUserId = (userId: number) => {
+  console.log(syncProcessTransactionsByUserId.keys());
   syncProcessTransactionsByUserId.delete(userId);
 };
