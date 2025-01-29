@@ -8,8 +8,8 @@
   "HEALTH_CHECK": "/health_check",
   "TEST": {
     "CHANGES": {
-      "TRIGGER": "/changes/trigger",
-      "COMMIT": "/changes/commit"
+      "TRIGGER": "/test/changes/trigger",
+      "COMMIT": "/test/changes/commit"
     }
   }
 }

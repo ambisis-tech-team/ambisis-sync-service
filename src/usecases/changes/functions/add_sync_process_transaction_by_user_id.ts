@@ -5,25 +5,11 @@ export const addSyncProcessTransactionByUserId = async (
   userId: number,
   database: string
 ) => {
-  try {
-    console.log("Starting transactions");
-    console.log("Starting transactions-central");
-    const transactionCentral = await db.startTransaction("ambisis");
-    console.log("Starting transactions-client");
-    const transactionClient = await db.startTransaction(database);
-    console.log("Starting transactions-set");
-    syncProcessTransactionsByUserId.set(userId, {
-      transactionCentral,
-      transactionClient,
-    });
-    console.log(
-      `Starting transactions-return - ${JSON.stringify(
-        syncProcessTransactionsByUserId
-      )}`
-    );
-    return { transactionCentral, transactionClient };
-  } catch (error) {
-    console.error(error);
-    throw error;
-  }
+  const transactionCentral = await db.startTransaction("ambisis");
+  const transactionClient = await db.startTransaction(database);
+  syncProcessTransactionsByUserId.set(userId, {
+    transactionClient,
+    transactionCentral,
+  });
+  return { transactionCentral, transactionClient };
 };

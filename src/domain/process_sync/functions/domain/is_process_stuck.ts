@@ -13,5 +13,4 @@ export const isProcessSyncStuck = (processSync: ProcessSync): boolean =>
   (processSync.lastSync == null ||
     (processSync.lastSync !== null &&
       processSync.lastSync.getTime() < processSync.updatedAt.getTime() &&
-      processSync.updatedAt.getTime() - new Date().getTime() >
-        Time.MINUTE * 5));
+      processSync.updatedAt.getTime() - new Date().getTime() > Time.MINUTE));
