@@ -26,7 +26,7 @@ export default function () {
   };
 
   http.post(
-    "https://api.ambisis.com.br/test/trigger",
+    "https://api.ambisis.com.br/test/changes/trigger",
     JSON.stringify(payloadTrigger),
     {
       headers: {
@@ -43,7 +43,7 @@ export default function () {
   };
 
   http.post(
-    "https://api.ambisis.com.br/test/commit",
+    "https://api.ambisis.com.br/test/changes/commit",
     JSON.stringify(payloadCommit),
     {
       headers: {
