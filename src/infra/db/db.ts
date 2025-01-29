@@ -1,6 +1,5 @@
 import { DataAccessObject } from "mysql-all-in-one";
 import { env } from "../env/env";
-import { Time } from "../../shared/types/time";
 
 const db = new DataAccessObject({
   host: env.DB_HOST,
@@ -8,8 +7,8 @@ const db = new DataAccessObject({
   user: env.DB_USER,
   password: env.DB_PASSWORD,
   timezone: "Z",
-  connectTimeout: Time.MINUTE,
-  connectionLimit: 500,
+  // connectTimeout: Time.MINUTE,
+  connectionLimit: 2_000,
 });
 
 export { db };
