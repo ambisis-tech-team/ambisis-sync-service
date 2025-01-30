@@ -7,16 +7,20 @@ import { authToUserSession } from "../../../domain/auth/functions/auth_to_user_s
 export const auth = (app: Application) => {
   app.use(async (req: Request, res: Response, next: NextFunction) => {
     const authToken = req.header("Auth");
+    console.log("authToken", authToken);
     if (typeof authToken !== "string")
       return ambisisResponse(res, 401, "UNAUTHORIZED");
     try {
       const response = await getAuthSession(authToken);
+      console.log("response", response);
       const responseBody = await response.clone().json();
 
       if (response.status === 200) {
         const session = await response.json();
+        console.log("session", session);
         if (isAuthSession(session?.data)) {
           const userSession = await authToUserSession(session?.data);
+          console.log("userSession", userSession);
           if (userSession !== null) {
             req.session = userSession;
             return next();
