@@ -7,7 +7,6 @@ import { putObjectCommand } from "../../../infra/s3/put_object_command";
 import { env } from "../../../infra/env/env";
 import { FileIsSynced } from "../../../domain/file/types/file";
 import { updateFile } from "../../../domain/file/functions/update_file";
-import fs from "fs";
 import type { ProcessFile } from "../types/process_file";
 import type { DataAccessObject } from "mysql-all-in-one";
 
@@ -24,11 +23,9 @@ export const processFile = async (
 
         const archive = await getFileById(archiveId, database);
 
-        const fileBuffer = fs.readFileSync(file.path);
-
         await putObjectCommand({
           Bucket: env.AWS_S3_BUCKET,
-          Body: fileBuffer,
+          Body: file.buffer,
           Key: archive.keyS3,
           ContentType: file.mimetype,
         });

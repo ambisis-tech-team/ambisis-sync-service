@@ -1,6 +1,6 @@
 export type ProcessFile = {
   fieldname: string;
-  path: string;
+  buffer: Buffer;
   filename: string;
   mimetype: string;
 };

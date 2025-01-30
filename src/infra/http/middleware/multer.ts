@@ -1,6 +1,9 @@
 import { Application } from "express";
-import upload from "multer";
+import multer from "multer";
 
-export const multer = (app: Application) => {
-  app.use(upload().any());
-};
+const storage = multer.memoryStorage();
+const upload = multer({ storage, limits: { fieldSize: 25 * 1024 * 1024 } });
+
+export default function (app: Application) {
+  app.use(upload.any());
+}
