@@ -5,11 +5,5 @@
     "ROLLBACK": "/changes/rollback"
   },
   "FILES": "/files",
-  "HEALTH_CHECK": "/health_check",
-  "TEST": {
-    "CHANGES": {
-      "TRIGGER": "/test/changes/trigger",
-      "COMMIT": "/test/changes/commit"
-    }
-  }
+  "HEALTH_CHECK": "/health_check"
 }
