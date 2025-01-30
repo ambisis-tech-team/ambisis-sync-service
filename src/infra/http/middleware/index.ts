@@ -8,7 +8,7 @@ import { sentry } from "./sentry";
 import multer from "./multer";
 
 export const authMiddleware = (app: Application) => {
-  ambisisMiddlewarePackage(app, { publicKey: env.PUBLIC_KEY });
+  // ambisisMiddlewarePackage(app, { publicKey: env.PUBLIC_KEY });
   auth(app);
 };
 
