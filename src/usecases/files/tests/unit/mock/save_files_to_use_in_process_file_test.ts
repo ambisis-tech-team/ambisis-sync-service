@@ -38,25 +38,25 @@ export const saveFilesToUseInProcessFileTest = async (): Promise<
       fieldname: firstFileId.toString(),
       filename: "file1",
       mimetype: "text/plain",
-      path: "uploads/test/file1.txt",
+      buffer: Buffer.from(""),
     },
     {
       fieldname: secondFiledId.toString(),
       filename: "file2",
       mimetype: "text/plain",
-      path: "uploads/test/file2.txt",
+      buffer: Buffer.from(""),
     },
     {
       fieldname: thirdFileId.toString(),
       filename: "file3",
       mimetype: "text/plain",
-      path: "uploads/test/file3.txt",
+      buffer: Buffer.from(""),
     },
     {
       fieldname: fourthFiledId.toString(),
       filename: "file4",
       mimetype: "text/plain",
-      path: "uploads/test/file4.txt",
+      buffer: Buffer.from(""),
     },
   ];
 };
