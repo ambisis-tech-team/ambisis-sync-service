@@ -43,10 +43,7 @@ export const processFile = async (
 
         return [Number(file.fieldname), null];
       } catch (error) {
-        log(
-          ` failed to swap foreign keys ${error} - push_changes.ts`,
-          LogLevel.ERROR
-        );
+        log(`Failed to sync files ${error} - process_file.ts`, LogLevel.ERROR);
         span.setStatus({
           code: SPAN_STATUS_ERROR,
           message: `Failed to sync file ${file.fieldname}`,
