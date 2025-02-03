@@ -2,7 +2,8 @@
   "CHANGES": {
     "TRIGGER": "/changes/trigger",
     "COMMIT": "/changes/commit",
-    "ROLLBACK": "/changes/rollback"
+    "ROLLBACK": "/changes/rollback",
+    "GET_INSERTED_IDS": "/changes/get_inserted_ids"
   },
   "FILES": "/files",
   "HEALTH_CHECK": "/health_check"

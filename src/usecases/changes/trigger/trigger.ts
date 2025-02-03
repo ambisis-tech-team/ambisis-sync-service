@@ -19,6 +19,7 @@ import { ambisisSpan } from "../../../shared/functions/ambisis_span";
 import { sendEmailError } from "../../../shared/functions/send_email_error";
 import { getSyncProcessTransactionByUserId } from "../functions/get_sync_process_transaction_by_user_id";
 import { doesUserHaveTransaction } from "../functions/does_user_have_transaction";
+import { createSyncInsertedIds } from "./functions/create_sync_inserted_ids/create_sync_inserted_ids";
 
 export const trigger = (req: Request, res: Response) =>
   startSpan({ name: "trigger" }, async (span) => {
@@ -199,6 +200,16 @@ export const trigger = (req: Request, res: Response) =>
       await snapshotClient.commit();
       await snapshotCentral.commit();
 
+      const insertedClientIds = pushedClientChanges.unwrap();
+      const insertedCentralIds = pushedCentralChanges.unwrap();
+
+      await createSyncInsertedIds(
+        db,
+        syncLogId,
+        insertedClientIds,
+        insertedCentralIds
+      );
+
       ambisisSpan(
         span,
         { status: "ok" },
@@ -217,8 +228,8 @@ export const trigger = (req: Request, res: Response) =>
 
       return ambisisResponse(res, 200, "SUCCESS", {
         ...pulledChanges.unwrap(),
-        insertedClientIds: pushedClientChanges.unwrap(),
-        insertedCentralIds: pushedCentralChanges.unwrap(),
+        insertedClientIds,
+        insertedCentralIds,
       });
     } catch (error) {
       sendEmailError(
