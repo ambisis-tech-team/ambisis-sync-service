@@ -17,7 +17,7 @@ export const backup = async (req: Request, res: Response) =>
       log(`Generating mobile database backup - ${user_id} - ${database}`);
       await putObjectCommand({
         Bucket: env.AWS_S3_BUCKET,
-        Key: `mobile-backups/${user_id}/${database}/${randomUUID()}.db`,
+        Key: `mobile-backups/${database}/${user_id}/${randomUUID()}.db`,
         Body: backupFile.buffer,
       });
       ambisisSpan(span, { status: "ok" });
