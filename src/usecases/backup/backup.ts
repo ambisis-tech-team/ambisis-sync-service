@@ -11,9 +11,11 @@ export const backup = async (req: Request, res: Response) =>
     const { user_id, database } = req.body;
     try {
       const files = req.files as Express.Multer.File[];
+      console.log(files);
       const backupFile = files.find((file) => file.filename === "database.db");
       if (!backupFile)
         return ambisisResponse(res, 422, "Backup file not found");
+      log(`Generating mobile database backup - ${user_id} - ${database}`);
       await putObjectCommand({
         Bucket: env.AWS_S3_BUCKET,
         Key: `mobile-backups/${user_id}/${database}/${randomUUID()}.db`,
