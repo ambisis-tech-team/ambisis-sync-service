@@ -7,7 +7,7 @@ export const syncInsertedIdSchema = z.object({
   syncId: z.string(),
   webId: z.number().int(),
   mobileId: z.number().int(),
-  isCentralTable: z.boolean(),
+  isCentralTable: z.coerce.boolean(),
 });
 
 export type SyncInsertId = z.infer<typeof syncInsertedIdSchema>;
