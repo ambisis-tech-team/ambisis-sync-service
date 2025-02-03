@@ -8,11 +8,10 @@ import { ambisisSpan } from "../../shared/functions/ambisis_span";
 
 export const backup = async (req: Request, res: Response) =>
   startSpan({ name: "backup" }, async (span) => {
-    const { user_id, database } = req.body;
+    const { user_id, database } = req.session;
     try {
       const files = req.files as Express.Multer.File[];
-      console.log(files);
-      const backupFile = files.find((file) => file.filename === "database.db");
+      const backupFile = files.find((file) => file.fieldname === "database");
       if (!backupFile)
         return ambisisResponse(res, 422, "Backup file not found");
       log(`Generating mobile database backup - ${user_id} - ${database}`);
@@ -22,6 +21,7 @@ export const backup = async (req: Request, res: Response) =>
         Body: backupFile.buffer,
       });
       ambisisSpan(span, { status: "ok" });
+      return ambisisResponse(res, 200, "SUCCESS");
     } catch (error) {
       ambisisSpan(span, {
         status: "error",
@@ -31,6 +31,6 @@ export const backup = async (req: Request, res: Response) =>
         `Failed tot generate mobile database backup - ${user_id} - ${database} - ${error}`,
         LogLevel.ERROR
       );
-      return ambisisResponse(res, 500, "Failed to generate backup");
+      return ambisisResponse(res, 500, "INTERNAL SERVER ERROR");
     }
   });
