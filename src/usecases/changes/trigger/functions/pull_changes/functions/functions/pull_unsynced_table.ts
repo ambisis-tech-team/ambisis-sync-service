@@ -8,7 +8,7 @@ import type { MappedForeignKeys } from "../../../push_changes/functions/map_fore
 import { getColumnsSelectFromColumnNamesAndForeignKeyMappings } from "./get_columns_select_from_column_names_and_foreign_key_mapping";
 import { getTableColumns } from "./get_table_columns";
 import type { Transaction } from "mysql-all-in-one/DataAccessObject/types";
-import { isObjectArray } from "../../../../../../../shared/functions/object_array";
+import { isObjectArray } from "../../../../../../../shared/functions/is_object_array";
 
 export const pullUnsyncedTables = async (
   tx: Transaction,

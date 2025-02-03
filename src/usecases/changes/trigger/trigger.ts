@@ -203,12 +203,25 @@ export const trigger = (req: Request, res: Response) =>
       const insertedClientIds = pushedClientChanges.unwrap();
       const insertedCentralIds = pushedCentralChanges.unwrap();
 
-      await createSyncInsertedIds(
+      const syncInsertedIdsResult = await createSyncInsertedIds(
         db,
+        span,
         syncLogId,
         insertedClientIds,
         insertedCentralIds
       );
+
+      if (syncInsertedIdsResult.isErr()) {
+        await handleErrors({
+          span,
+          err: syncInsertedIdsResult,
+          lastSyncDate,
+          syncLogId,
+          user_id,
+          database,
+        });
+        return ambisisResponse(res, 500, "INTERNAL SERVER ERROR");
+      }
 
       ambisisSpan(
         span,

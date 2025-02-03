@@ -3,6 +3,7 @@ import type { Span } from "@sentry/core";
 import { log, LogLevel } from "ambisis_node_helper";
 import type { Transaction } from "mysql-all-in-one/DataAccessObject/types";
 import type { Err } from "void-ts";
+import { sendEmailError } from "../../../../shared/functions/send_email_error";
 
 export async function handleErrors<T extends Error = Error>({
   span,
@@ -37,8 +38,13 @@ export async function handleErrors<T extends Error = Error>({
       database: database,
     });
 
-  log(` ${error.message} - sync.ts`, LogLevel.ERROR);
+  log(`${error.message} - sync.ts`, LogLevel.ERROR);
 
   if (snapshotClient) await snapshotClient.rollback();
   if (snapshotCentral) await snapshotCentral.rollback();
+
+  sendEmailError(
+    "Erro inesperado ao rodando o sync 3.0",
+    `Ocorreu um erro ao rodar o sync 3.0 - userId: ${user_id} - database: ${database} - ${error} - ${syncLogId}`
+  );
 }

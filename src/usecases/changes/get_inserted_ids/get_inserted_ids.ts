@@ -11,6 +11,10 @@ export const getInsertedIds = async (req: Request, res: Response) =>
     const { user_id, database } = req.session;
     try {
       assert(isGetInsertedIdsBody(req.body), "Request body is invalid");
+      log(
+        `Obtaining inserted ids - userId: ${user_id} - database: ${database}`,
+        LogLevel.INFO
+      );
       const insertedIds = await getSyncInsertedIdsBySyncId(db, req.body.syncId);
       return insertedIds.match({
         isOk: (insertedIds) =>

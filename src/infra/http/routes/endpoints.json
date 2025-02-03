@@ -5,6 +5,7 @@
     "ROLLBACK": "/changes/rollback",
     "GET_INSERTED_IDS": "/changes/get_inserted_ids"
   },
+  "BACKUP": "/backup",
   "FILES": "/files",
   "HEALTH_CHECK": "/health_check"
 }

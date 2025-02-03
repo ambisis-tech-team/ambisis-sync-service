@@ -6,7 +6,7 @@ import type { MappedForeignKeys } from "../../../push_changes/functions/map_fore
 import { getTableColumns } from "./get_table_columns";
 import type { Transaction } from "mysql-all-in-one/DataAccessObject/types";
 import { sqlExpression } from "mysql-all-in-one/QueryBuilder/sql_expression";
-import { isObjectArray } from "../../../../../../../shared/functions/object_array";
+import { isObjectArray } from "../../../../../../../shared/functions/is_object_array";
 
 export const pullDbTables = async (
   tx: Transaction,

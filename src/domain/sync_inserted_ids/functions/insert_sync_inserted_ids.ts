@@ -1,4 +1,3 @@
-import { Err } from "void-ts";
 import type { SyncInsertIdsArrayInsert } from "../types/sync_inserted_id";
 import { FailedToInsertSyncInsertedIds } from "./error/failed_to_insert_sync_inserted_ids";
 import { log, LogLevel } from "ambisis_node_helper";
@@ -22,7 +21,7 @@ export const insertedSyncInsertedIds = async (
       { database: "ambisis" }
     );
   } catch (error) {
-    log(`Failed to inserted sync inserted ids`, LogLevel.INFO);
-    return new Err(new FailedToInsertSyncInsertedIds());
+    log(`Failed to inserted sync inserted ids - ${error}`, LogLevel.ERROR);
+    throw new FailedToInsertSyncInsertedIds();
   }
 };
