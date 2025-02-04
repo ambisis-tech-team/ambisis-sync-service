@@ -61,6 +61,7 @@ export const swapForeignKeys = async (
                 const swappedFKs = Object.fromEntries(updatedColumns.entries());
                 if (!Object.keys(swappedFKs).length) continue;
                 if (data.id > 0) {
+                  console.log("data.id", data.id);
                   const newId = insertedIdsByTable[table][data.id];
                   if (!newId) continue;
                   await tx.update(table, swappedFKs, { id: Math.abs(newId) });
