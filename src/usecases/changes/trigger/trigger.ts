@@ -20,6 +20,7 @@ import { sendEmailError } from "../../../shared/functions/send_email_error";
 import { getSyncProcessTransactionByUserId } from "../functions/get_sync_process_transaction_by_user_id";
 import { doesUserHaveTransaction } from "../functions/does_user_have_transaction";
 import { createSyncInsertedIds } from "./functions/create_sync_inserted_ids/create_sync_inserted_ids";
+import { createTriggerSyncPayloadJson } from "./functions/push_changes/functions/create_trigger_sync_payload_json/create_trigger_sync_payload_json";
 
 export const trigger = (req: Request, res: Response) =>
   startSpan({ name: "trigger" }, async (span) => {
@@ -106,6 +107,8 @@ export const trigger = (req: Request, res: Response) =>
         syncedCentralDbTables,
         syncedClientDbTables,
       } = req.body;
+
+      createTriggerSyncPayloadJson(database, user_id, syncLogId, req.body);
 
       const foreignKeys = await mapForeignKeys(span, database);
       if (foreignKeys.isErr()) {
