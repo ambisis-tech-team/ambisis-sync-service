@@ -38,7 +38,7 @@ export const pullDbTables = async (
         from: table,
         where: [
           sqlExpression`UNIX_TIMESTAMP(modificacaoData) * 1000 >= ${lastSyncDate}`,
-          sqlExpression`name = ${userDatabase}`,
+          sqlExpression`database = ${userDatabase}`,
         ],
         columns: columns,
       });

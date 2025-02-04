@@ -41,7 +41,7 @@ export const pullUnsyncedTables = async (
       const data = await tx.select({
         from: table,
         columns: selectedColumns,
-        where: { name: userDatabase },
+        where: { database: userDatabase },
       });
       assert(isObjectArray(data), "Should always be an object array");
       return new Ok({ table, data });
