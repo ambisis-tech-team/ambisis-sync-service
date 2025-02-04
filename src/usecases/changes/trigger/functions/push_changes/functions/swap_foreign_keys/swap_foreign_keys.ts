@@ -35,7 +35,6 @@ export const swapForeignKeys = async (
                 const updatedColumns = new Map<string, number>();
                 for (const [column, value] of swapMapping.entries()) {
                   if (column === "id") {
-                    console.log("data.id", data.id);
                     const newId = insertedIdsByTable[table][data.id];
                     if (!newId) continue;
                     updatedColumns.set(column, Math.abs(newId));
@@ -68,7 +67,6 @@ export const swapForeignKeys = async (
                   );
                   if (!Object.keys(swappedFKs).length) continue;
                   if (data.id > 0) {
-                    console.log("data.id", data.id);
                     const newId = insertedIdsByTable[table][data.id];
                     if (!newId) continue;
                     await tx.update(table, swappedFKs, { id: Math.abs(newId) });

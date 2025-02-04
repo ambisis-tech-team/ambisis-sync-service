@@ -108,8 +108,6 @@ export const trigger = (req: Request, res: Response) =>
         syncedClientDbTables,
       } = req.body;
 
-      createTriggerSyncPayloadJson(database, user_id, syncLogId, req.body);
-
       const foreignKeys = await mapForeignKeys(span, database);
       if (foreignKeys.isErr()) {
         await handleErrors({
@@ -119,6 +117,7 @@ export const trigger = (req: Request, res: Response) =>
           user_id,
           database,
           err: foreignKeys,
+          request: req.body,
         });
         return ambisisResponse(res, 500, "INTERNAL SERVER ERROR");
       }
@@ -168,6 +167,7 @@ export const trigger = (req: Request, res: Response) =>
           database,
           snapshotClient,
           snapshotCentral,
+          request: req.body,
         });
         return ambisisResponse(res, 500, "INTERNAL SERVER ERROR");
       }
@@ -182,6 +182,7 @@ export const trigger = (req: Request, res: Response) =>
           database,
           snapshotClient,
           snapshotCentral,
+          request: req.body,
         });
         return ambisisResponse(res, 500, "INTERNAL SERVER ERROR");
       }
@@ -196,6 +197,7 @@ export const trigger = (req: Request, res: Response) =>
           database,
           snapshotClient,
           snapshotCentral,
+          request: req.body,
         });
         return ambisisResponse(res, 500, "INTERNAL SERVER ERROR");
       }
@@ -222,6 +224,7 @@ export const trigger = (req: Request, res: Response) =>
           syncLogId,
           user_id,
           database,
+          request: req.body,
         });
         return ambisisResponse(res, 500, "INTERNAL SERVER ERROR");
       }

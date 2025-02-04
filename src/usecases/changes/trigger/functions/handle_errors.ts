@@ -4,6 +4,8 @@ import { log, LogLevel } from "ambisis_node_helper";
 import type { Transaction } from "mysql-all-in-one/DataAccessObject/types";
 import type { Err } from "void-ts";
 import { sendEmailError } from "../../../../shared/functions/send_email_error";
+import type { SyncRequest } from "../types/trigger_request";
+import { createTriggerSyncPayloadJson } from "./push_changes/functions/create_trigger_sync_payload_json/create_trigger_sync_payload_json";
 
 export async function handleErrors<T extends Error = Error>({
   span,
@@ -14,6 +16,7 @@ export async function handleErrors<T extends Error = Error>({
   database,
   snapshotClient,
   snapshotCentral,
+  request,
 }: {
   span: Span;
   err: Err<T>;
@@ -23,6 +26,7 @@ export async function handleErrors<T extends Error = Error>({
   database: string;
   snapshotClient?: Transaction;
   snapshotCentral?: Transaction;
+  request: SyncRequest;
 }) {
   const error = err.unwrapErr();
 
@@ -42,6 +46,8 @@ export async function handleErrors<T extends Error = Error>({
 
   if (snapshotClient) await snapshotClient.rollback();
   if (snapshotCentral) await snapshotCentral.rollback();
+
+  createTriggerSyncPayloadJson(database, user_id, syncLogId, request);
 
   sendEmailError(
     "Erro inesperado ao rodando o sync 3.0",
