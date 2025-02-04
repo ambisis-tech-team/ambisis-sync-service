@@ -33,32 +33,48 @@ export const swapForeignKeys = async (
                 ...updatedRows,
               ]) {
                 const updatedColumns = new Map<string, number>();
-                for (const [column, value] of swapMapping.entries()) {
-                  if (column === "id") {
-                    const newId = insertedIdsByTable[table][data.id];
-                    if (!newId) continue;
-                    updatedColumns.set(column, Math.abs(newId));
-                    continue;
-                  }
-                  const mappingFk = foreignKeyMapping[table];
-                  if (!mappingFk) {
-                    if (guessIfColumnIsForeignKey(table, column)) {
-                      const extractedTable = extractTableFromColumn(column);
-                      if (!extractedTable) continue;
-                      const fkToSwap =
-                        insertedIdsByTable[extractedTable][value];
-                      if (!fkToSwap) continue;
-                      updatedColumns.set(column, Math.abs(fkToSwap));
+                try {
+                  for (const [column, value] of swapMapping.entries()) {
+                    if (column === "id") {
+                      const newId = insertedIdsByTable[table][data.id];
+                      if (!newId) continue;
+                      updatedColumns.set(column, Math.abs(newId));
                       continue;
                     }
-                    continue;
+                    const mappingFk = foreignKeyMapping[table];
+                    if (!mappingFk) {
+                      if (guessIfColumnIsForeignKey(table, column)) {
+                        const extractedTable = extractTableFromColumn(column);
+                        if (!extractedTable) continue;
+                        const fkToSwapTable =
+                          insertedIdsByTable[extractedTable];
+                        if (!fkToSwapTable) continue;
+                        const fkToSwapTableValue =
+                          insertedIdsByTable[extractedTable][value];
+                        if (!fkToSwapTableValue) continue;
+                        updatedColumns.set(
+                          column,
+                          Math.abs(fkToSwapTableValue)
+                        );
+                        continue;
+                      }
+                      continue;
+                    }
+                    const fk = mappingFk.find(
+                      (fk) => fk.parentColumn === column
+                    );
+                    if (!fk) continue;
+                    const fkToSwap =
+                      insertedIdsByTable[fk.referencedTable][value];
+                    if (!fkToSwap) continue;
+                    updatedColumns.set(column, Math.abs(fkToSwap));
                   }
-                  const fk = mappingFk.find((fk) => fk.parentColumn === column);
-                  if (!fk) continue;
-                  const fkToSwap =
-                    insertedIdsByTable[fk.referencedTable][value];
-                  if (!fkToSwap) continue;
-                  updatedColumns.set(column, Math.abs(fkToSwap));
+                } catch (error) {
+                  log(
+                    `Failed to swap foreign keys - ${table} - ${error} - swap_foreign_keys.ts`,
+                    LogLevel.ERROR
+                  );
+                  return new Err(new FailedToSwapForeignKeys());
                 }
 
                 try {
@@ -75,7 +91,7 @@ export const swapForeignKeys = async (
                   await tx.update(table, swappedFKs, { id: Math.abs(data.id) });
                 } catch (error) {
                   log(
-                    ` Failed to swap foreign keys - ${error} - swap_foreign_keys.ts`,
+                    `Failed to swap foreign keys - ${table} - ${error} - swap_foreign_keys.ts`,
                     LogLevel.ERROR
                   );
                   return new Err(new FailedToSwapForeignKeys());
@@ -93,7 +109,7 @@ export const swapForeignKeys = async (
               message: "Failed to swap foreign keys",
             });
             log(
-              ` Failed to swap foreign keys - ${error} - swap_foreign_keys.ts`,
+              `Unhandled error failed to swap foreign keys - ${error} - swap_foreign_keys.ts`,
               LogLevel.ERROR
             );
             return new Err(new FailedToSwapForeignKeys());

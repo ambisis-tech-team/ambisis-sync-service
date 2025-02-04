@@ -37,7 +37,7 @@ export const pushChanges = async (
           if (updatedAndInsertedRowsFromDataChanges.isErr()) {
             const error = updatedAndInsertedRowsFromDataChanges.unwrapErr();
             log(
-              ` failed to extract updated and inserted rows from changes - ${error.message} - push_changes.ts`,
+              `Failed to extract updated and inserted rows from changes - ${error.message} - push_changes.ts`,
               LogLevel.ERROR
             );
             span.setStatus({ code: SPAN_STATUS_ERROR, message: error.message });
@@ -51,7 +51,7 @@ export const pushChanges = async (
           if (disabledForeignKeyChecks.isErr()) {
             const error = disabledForeignKeyChecks.unwrapErr();
             log(
-              ` failed to disable foreign keys - ${error.message} - push_changes.ts`,
+              `Failed to disable foreign keys - ${error.message} - push_changes.ts`,
               LogLevel.ERROR
             );
             span.setStatus({ code: SPAN_STATUS_ERROR, message: error.message });
@@ -67,7 +67,7 @@ export const pushChanges = async (
           if (insertedRows.isErr()) {
             const error = insertedRows.unwrapErr();
             log(
-              ` failed to insert rows - ${error.message} - push_changes.ts`,
+              `Failed to insert rows - ${error.message} - push_changes.ts`,
               LogLevel.ERROR
             );
             span.setStatus({ code: SPAN_STATUS_ERROR, message: error.message });
@@ -83,7 +83,7 @@ export const pushChanges = async (
           if (updatedRowsResult.isErr()) {
             const error = updatedRowsResult.unwrapErr();
             log(
-              ` failed to update rows - ${error.message} - push_changes.ts`,
+              `Failed to update rows - ${error.message} - push_changes.ts`,
               LogLevel.ERROR
             );
             span.setStatus({ code: SPAN_STATUS_ERROR, message: error.message });
@@ -94,7 +94,7 @@ export const pushChanges = async (
           if (deletedRows.isErr()) {
             const error = deletedRows.unwrapErr();
             log(
-              ` failed to delete rows - ${error.message} - push_changes.ts`,
+              `Failed to delete rows - ${error.message} - push_changes.ts`,
               LogLevel.ERROR
             );
             span.setStatus({ code: SPAN_STATUS_ERROR, message: error.message });
@@ -111,7 +111,7 @@ export const pushChanges = async (
           if (swappedForeignKeys.isErr()) {
             const error = swappedForeignKeys.unwrapErr();
             log(
-              ` failed to swap foreign keys ${error.message} - push_changes.ts`,
+              `Failed to swap foreign keys ${error.message} - push_changes.ts`,
               LogLevel.ERROR
             );
             span.setStatus({ code: SPAN_STATUS_ERROR, message: error.message });
@@ -125,7 +125,7 @@ export const pushChanges = async (
           if (enabledForeignKeyChecks.isErr()) {
             const error = enabledForeignKeyChecks.unwrapErr();
             log(
-              ` failed to re enable foreign key checks in transaction ${error.message} - push_changes.ts`,
+              `Failed to re enable foreign key checks in transaction ${error.message} - push_changes.ts`,
               LogLevel.ERROR
             );
             span.setStatus({ code: SPAN_STATUS_ERROR, message: error.message });
@@ -141,7 +141,7 @@ export const pushChanges = async (
             message: "Failed to handle changes",
           });
           log(
-            ` Failed to handle changes - ${error} - push_changes.ts`,
+            `Failed to handle changes - ${error} - push_changes.ts`,
             LogLevel.ERROR
           );
           return new Err(new FailedToHandleChanges());

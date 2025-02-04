@@ -17,7 +17,7 @@ export const getFileById = async (
     return arquivo;
   } catch (error) {
     log(
-      `Failed to swap foreign keys ${error} - push_changes.ts`,
+      `Failed to get file by id ${error} - get_file_by_id.ts`,
       LogLevel.ERROR
     );
     throw new FailedToGetFileById();

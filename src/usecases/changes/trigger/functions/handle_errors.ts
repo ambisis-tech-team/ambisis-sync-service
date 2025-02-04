@@ -42,7 +42,7 @@ export async function handleErrors<T extends Error = Error>({
       database: database,
     });
 
-  log(`${error.message} - sync.ts`, LogLevel.ERROR);
+  log(`${error.message} - trigger.ts`, LogLevel.ERROR);
 
   if (snapshotClient) await snapshotClient.rollback();
   if (snapshotCentral) await snapshotCentral.rollback();

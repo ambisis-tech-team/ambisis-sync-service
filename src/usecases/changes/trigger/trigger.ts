@@ -255,7 +255,7 @@ export const trigger = (req: Request, res: Response) =>
         "Erro inesperado ao rodando o sync 3.0",
         `Ocorreu um erro não tratado ao rodar o sync 3.0 - userId: ${user_id} - database: ${database} - ${error}`
       );
-      log(` Unexpected error ${error} - sync.ts`, LogLevel.ERROR);
+      log(` Unexpected error ${error} - trigger.ts`, LogLevel.ERROR);
       ambisisSpan(
         span,
         { status: "error", message: "Unexpected error" },
