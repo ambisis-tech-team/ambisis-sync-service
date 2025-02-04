@@ -13,7 +13,10 @@ export const pullDbTables = async (
   lastSyncDate: number,
   table: string,
   database: string,
-  foreignKeyMap: MappedForeignKeys
+  foreignKeyMap: MappedForeignKeys,
+  opts: { isCentralDb: boolean; userDatabase?: string } = {
+    isCentralDb: false,
+  }
 ): Promise<
   Result<{ table: string; data: Record<string, unknown>[] }, FailedToPullTables>
 > => {
@@ -28,6 +31,21 @@ export const pullDbTables = async (
       foreignKeyMap,
       tableColumnNames
     );
+
+    const { isCentralDb, userDatabase } = opts;
+    if (isCentralDb && table === "cliente") {
+      const data = await tx.select({
+        from: table,
+        where: [
+          sqlExpression`UNIX_TIMESTAMP(modificacaoData) * 1000 >= ${lastSyncDate}`,
+          sqlExpression`name = ${userDatabase}`,
+        ],
+        columns: columns,
+      });
+      assert(isObjectArray(data), "Should always be an object array");
+      return new Ok({ table, data });
+    }
+
     const data = await tx.select({
       from: table,
       where: [

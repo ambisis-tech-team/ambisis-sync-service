@@ -12,7 +12,8 @@ export const pullUnsyncedCentralDbTables = async (
   span: Span,
   syncedMobileCentralTables: string[],
   tablesInSync: string[],
-  mappedForeignKeys: MappedForeignKeys
+  mappedForeignKeys: MappedForeignKeys,
+  userDatabase: string
 ): Promise<
   Result<
     { table: string; data: Record<string, unknown>[] }[],
@@ -36,7 +37,8 @@ export const pullUnsyncedCentralDbTables = async (
                   tx,
                   table,
                   "ambisis",
-                  mappedForeignKeys
+                  mappedForeignKeys,
+                  { isCentralDb: true, userDatabase }
                 )
             )
           );

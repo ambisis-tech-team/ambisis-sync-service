@@ -14,7 +14,10 @@ export const pullUnsyncedTables = async (
   tx: Transaction,
   table: string,
   database: string,
-  foreignKeys: MappedForeignKeys
+  foreignKeys: MappedForeignKeys,
+  opts: { isCentralDb: boolean; userDatabase?: string } = {
+    isCentralDb: false,
+  }
 ): Promise<
   Result<
     { table: string; data: Record<string, unknown>[] },
@@ -33,6 +36,16 @@ export const pullUnsyncedTables = async (
         foreignKeys,
         tableColumnNames
       );
+    const { isCentralDb, userDatabase } = opts;
+    if (isCentralDb && table === "cliente") {
+      const data = await tx.select({
+        from: table,
+        columns: selectedColumns,
+        where: { name: userDatabase },
+      });
+      assert(isObjectArray(data), "Should always be an object array");
+      return new Ok({ table, data });
+    }
     const data = await tx.select({ from: table, columns: selectedColumns });
     assert(isObjectArray(data), "Should always be an object array");
     return new Ok({ table, data });

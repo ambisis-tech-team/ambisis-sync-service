@@ -82,7 +82,8 @@ export const pullChanges = async (
         span,
         syncedCentralDbTables,
         tablesToSyncCentralDb,
-        mappedForeignKeys
+        mappedForeignKeys,
+        database
       );
 
       if (unsyncedCentralTables.isErr()) {
