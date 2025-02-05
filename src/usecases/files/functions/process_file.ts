@@ -23,6 +23,18 @@ export const processFile = async (
 
         const archive = await getFileById(archiveId, database);
 
+        if (archive.s3FileStatus === FileIsSynced.SYNCED) {
+          span.setStatus({
+            code: SPAN_STATUS_OK,
+            message: `File ${file.filename} already uploaded - ${archive.keyS3}`,
+          });
+          log(
+            `Tried to sync file ${file.filename} that is already synced - ${archive.keyS3} - ${database}`,
+            LogLevel.INFO
+          );
+          return [Number(file.fieldname), null];
+        }
+
         await putObjectCommand({
           Bucket: env.AWS_S3_BUCKET,
           Body: file.buffer,
