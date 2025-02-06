@@ -20,6 +20,7 @@ import { sendEmailError } from "../../../shared/functions/send_email_error";
 import { getSyncProcessTransactionByUserId } from "../functions/get_sync_process_transaction_by_user_id";
 import { doesUserHaveTransaction } from "../functions/does_user_have_transaction";
 import { createSyncInsertedIds } from "./functions/create_sync_inserted_ids/create_sync_inserted_ids";
+import { isAwaitingCommit } from "../../../domain/process_sync/functions/domain/is_awaiting_commit";
 
 export const trigger = (req: Request, res: Response) =>
   startSpan({ name: "trigger" }, async (span) => {
@@ -35,6 +36,36 @@ export const trigger = (req: Request, res: Response) =>
       }
 
       const processSync = await getSyncProcessByUser(user_id);
+
+      if (isAwaitingCommit(processSync)) {
+        log(
+          `Sync process awaiting commit - userId: ${user_id} - database: ${database}`,
+          LogLevel.INFO
+        );
+        if (doesUserHaveTransaction(user_id)) {
+          try {
+            const { transactionCentral, transactionClient } =
+              getSyncProcessTransactionByUserId(user_id);
+
+            await transactionCentral.commit();
+            await transactionClient.commit();
+          } catch (error) {
+            log(
+              `Failed to rollback sync process awaiting commit - ${error}`,
+              LogLevel.ERROR
+            );
+            ambisisSpan(
+              span,
+              {
+                status: "error",
+                message: "Sync process awaiting commit and failed to recover",
+              },
+              { userId: user_id, database: database }
+            );
+            return ambisisResponse(res, 500, "INTERNAL SERVER ERROR");
+          }
+        }
+      }
 
       if (isProcessSyncStuck(processSync)) {
         log(
@@ -227,6 +258,11 @@ export const trigger = (req: Request, res: Response) =>
         });
         return ambisisResponse(res, 500, "INTERNAL SERVER ERROR");
       }
+
+      await updateSyncProcess({
+        id: processSync.id,
+        status: ProcessSyncStatus.AWAIT_COMMIT,
+      });
 
       ambisisSpan(
         span,
