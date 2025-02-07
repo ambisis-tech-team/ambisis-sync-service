@@ -16,7 +16,7 @@ export const isSyncInsertedId = (data: unknown): data is SyncInsertId => {
   const { success, error } = syncInsertedIdSchema.safeParse(data);
   if (error)
     log(
-      `Data is not sync inserted id - ${data} - ${error} process_sync.ts`,
+      `Data is not sync inserted id - ${data} - ${error} sync_inserted_id.ts`,
       LogLevel.ERROR
     );
   return success;
@@ -32,7 +32,7 @@ export const isSyncInsertedIdsArray = (
   const { success, error } = syncInsertedIdsArraySchema.safeParse(data);
   if (error)
     log(
-      `Data is not an array of sync inserted ids - ${data} - ${error} process_sync.ts`,
+      `Data is not an array of sync inserted ids - ${data} - ${error} sync_inserted_id.ts`,
       LogLevel.ERROR
     );
   return success;

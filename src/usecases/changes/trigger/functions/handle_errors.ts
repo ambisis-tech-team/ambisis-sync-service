@@ -14,6 +14,8 @@ export async function handleErrors<T extends Error = Error>({
   syncLogId,
   user_id,
   database,
+  transactionCentral,
+  transactionClient,
   snapshotClient,
   snapshotCentral,
   request,
@@ -26,6 +28,8 @@ export async function handleErrors<T extends Error = Error>({
   database: string;
   snapshotClient?: Transaction;
   snapshotCentral?: Transaction;
+  transactionClient?: Transaction;
+  transactionCentral?: Transaction;
   request: SyncRequest;
 }) {
   const error = err.unwrapErr();
@@ -46,6 +50,8 @@ export async function handleErrors<T extends Error = Error>({
 
   if (snapshotClient) await snapshotClient.rollback();
   if (snapshotCentral) await snapshotCentral.rollback();
+  if (transactionClient) await transactionClient.rollback();
+  if (transactionCentral) await transactionCentral.rollback();
 
   createTriggerSyncPayloadJson(database, user_id, syncLogId, request);
 

@@ -8,19 +8,10 @@ import { mapForeignKeys } from "./functions/push_changes/functions/map_foreign_k
 import { mobileCentralTablesToSync } from "./functions/pull_changes/constants/mobile_central_tables_to_sync";
 import { mobileClientTablesToSync } from "./functions/pull_changes/constants/mobile_client_tables_to_sync";
 import { handleErrors } from "./functions/handle_errors";
-import { getSyncProcessByUser } from "../../../domain/process_sync/functions/db/get_sync_process_by_user";
-import { isRunning } from "../../../domain/process_sync/functions/domain/is_running";
-import { isProcessSyncStuck } from "../../../domain/process_sync/functions/domain/is_process_stuck";
-import { updateSyncProcess } from "../../../domain/process_sync/functions/db/update_sync_process";
-import { ProcessSyncStatus } from "../../../domain/process_sync/types/sync_process";
 import { db } from "../../../infra/db/db";
-import { addSyncProcessTransactionByUserId } from "../functions/add_sync_process_transaction_by_user_id";
 import { ambisisSpan } from "../../../shared/functions/ambisis_span";
 import { sendEmailError } from "../../../shared/functions/send_email_error";
-import { getSyncProcessTransactionByUserId } from "../functions/get_sync_process_transaction_by_user_id";
-import { doesUserHaveTransaction } from "../functions/does_user_have_transaction";
 import { createSyncInsertedIds } from "./functions/create_sync_inserted_ids/create_sync_inserted_ids";
-import { isAwaitingCommit } from "../../../domain/process_sync/functions/domain/is_awaiting_commit";
 
 export const trigger = (req: Request, res: Response) =>
   startSpan({ name: "trigger" }, async (span) => {
@@ -34,93 +25,6 @@ export const trigger = (req: Request, res: Response) =>
         );
         return ambisisResponse(res, 422, "UNPROCESSABLE ENTITY");
       }
-
-      const processSync = await getSyncProcessByUser(user_id);
-
-      if (isAwaitingCommit(processSync)) {
-        log(
-          `Sync process awaiting commit - userId: ${user_id} - database: ${database}`,
-          LogLevel.INFO
-        );
-        if (doesUserHaveTransaction(user_id)) {
-          try {
-            const { transactionCentral, transactionClient } =
-              getSyncProcessTransactionByUserId(user_id);
-
-            await transactionCentral.commit();
-            await transactionClient.commit();
-          } catch (error) {
-            log(
-              `Failed to rollback sync process awaiting commit - ${error}`,
-              LogLevel.ERROR
-            );
-            ambisisSpan(
-              span,
-              {
-                status: "error",
-                message: "Sync process awaiting commit and failed to recover",
-              },
-              { userId: user_id, database: database }
-            );
-            return ambisisResponse(res, 500, "INTERNAL SERVER ERROR");
-          }
-        }
-      }
-
-      if (isProcessSyncStuck(processSync)) {
-        log(
-          `Sync process stuck - userId: ${user_id} - database: ${database}`,
-          LogLevel.INFO
-        );
-
-        if (doesUserHaveTransaction(user_id)) {
-          try {
-            const { transactionCentral, transactionClient } =
-              getSyncProcessTransactionByUserId(user_id);
-
-            await transactionCentral.rollback();
-            await transactionClient.rollback();
-          } catch (error) {
-            log(
-              `Failed to rollback stuck sync process  - ${error}`,
-              LogLevel.ERROR
-            );
-
-            ambisisSpan(
-              span,
-              {
-                status: "error",
-                message: "Sync process stuck and failed to recover",
-              },
-              { userId: user_id, database: database }
-            );
-            return ambisisResponse(res, 500, "INTERNAL SERVER ERROR");
-          }
-        }
-      }
-
-      if (isRunning(processSync) && !isProcessSyncStuck(processSync)) {
-        log(
-          `Sync already running - userId: ${user_id} - database: ${database}`,
-          LogLevel.INFO
-        );
-        ambisisSpan(
-          span,
-          { status: "ok", message: "Sync already running" },
-          { userId: user_id, database: database }
-        );
-        return ambisisResponse(res, 200, "SUCCESS", {
-          message: "Sync already running",
-        });
-      }
-
-      await updateSyncProcess({
-        id: processSync.id,
-        status: ProcessSyncStatus.PROCESSING,
-      });
-
-      const { transactionCentral, transactionClient } =
-        await addSyncProcessTransactionByUserId(user_id, database);
 
       log(
         `Starting sync - userId: ${user_id} - database: ${database}`,
@@ -152,6 +56,8 @@ export const trigger = (req: Request, res: Response) =>
         return ambisisResponse(res, 500, "INTERNAL SERVER ERROR");
       }
 
+      const transactionCentral = await db.startTransaction("ambisis");
+      const transactionClient = await db.startTransaction(database);
       const snapshotClient = await db.startTransaction(database);
       const snapshotCentral = await db.startTransaction("ambisis");
 
@@ -198,6 +104,8 @@ export const trigger = (req: Request, res: Response) =>
           snapshotClient,
           snapshotCentral,
           request: req.body,
+          transactionClient,
+          transactionCentral,
         });
         return ambisisResponse(res, 500, "INTERNAL SERVER ERROR");
       }
@@ -213,6 +121,8 @@ export const trigger = (req: Request, res: Response) =>
           snapshotClient,
           snapshotCentral,
           request: req.body,
+          transactionClient,
+          transactionCentral,
         });
         return ambisisResponse(res, 500, "INTERNAL SERVER ERROR");
       }
@@ -228,12 +138,11 @@ export const trigger = (req: Request, res: Response) =>
           snapshotClient,
           snapshotCentral,
           request: req.body,
+          transactionClient,
+          transactionCentral,
         });
         return ambisisResponse(res, 500, "INTERNAL SERVER ERROR");
       }
-
-      await snapshotClient.commit();
-      await snapshotCentral.commit();
 
       const insertedClientIds = pushedClientChanges.unwrap();
       const insertedCentralIds = pushedCentralChanges.unwrap();
@@ -255,14 +164,16 @@ export const trigger = (req: Request, res: Response) =>
           user_id,
           database,
           request: req.body,
+          transactionClient,
+          transactionCentral,
         });
         return ambisisResponse(res, 500, "INTERNAL SERVER ERROR");
       }
 
-      await updateSyncProcess({
-        id: processSync.id,
-        status: ProcessSyncStatus.AWAIT_COMMIT,
-      });
+      await snapshotClient.commit();
+      await snapshotCentral.commit();
+      await transactionClient.commit();
+      await transactionCentral.commit();
 
       ambisisSpan(
         span,
