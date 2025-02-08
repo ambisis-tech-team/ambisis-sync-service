@@ -17,17 +17,8 @@ export const processFile = async (
   database: string
 ): Promise<[number, FailedToProcessToFile | null]> =>
   withActiveSpan(span, async () =>
-    startSpan({ name: `file.processFile.${file.filename}` }, async (span) => {
+    startSpan({ name: `file.processFile.${file.fieldname}` }, async (span) => {
       try {
-        if (!file.filename) {
-          span.setStatus({
-            code: SPAN_STATUS_ERROR,
-            message: "File name not found",
-          });
-          log("File name not found", LogLevel.ERROR);
-          return [Number(file.fieldname), new FailedToProcessToFile()];
-        }
-
         const archiveId = Math.abs(Number(file.fieldname));
 
         const archive = await getFileById(archiveId, database);
