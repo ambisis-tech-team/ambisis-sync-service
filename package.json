@@ -16,8 +16,8 @@
   "description": "",
   "devDependencies": {
     "@testcontainers/mysql": "^10.16.0",
+    "@types/busboy": "^1.5.4",
     "@types/express": "^5.0.0",
-    "@types/multer": "^1.4.12",
     "@types/node": "^22.13.0",
     "nodemon": "^3.1.9",
     "npm-run-all": "^4.1.5",
@@ -25,17 +25,18 @@
     "vitest": "^3.0.2"
   },
   "dependencies": {
-    "@aws-sdk/client-s3": "^3.731.1",
+    "@aws-sdk/client-s3": "^3.744.0",
+    "@aws-sdk/lib-storage": "^3.744.0",
     "@sentry/core": "^8.50.0",
     "@sentry/node": "^8.50.0",
     "@types/cors": "^2.8.17",
     "@types/k6": "^0.54.2",
     "ambisis_node_helper": "^1.10.1",
+    "busboy": "^1.6.0",
     "cors": "^2.8.5",
     "date-fns": "^4.1.0",
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
-    "multer": "^1.4.5-lts.1",
     "mysql-all-in-one": "^4.10.2",
     "void-ts": "^1.0.19",
     "zod": "^3.24.1"
