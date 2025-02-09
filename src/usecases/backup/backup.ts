@@ -1,27 +1,76 @@
-import { startSpan } from "@sentry/core";
+import { SPAN_STATUS_ERROR, startSpan } from "@sentry/core";
 import { ambisisResponse, log, LogLevel } from "ambisis_node_helper";
 import type { Request, Response } from "express";
-import { putObjectCommand } from "../../infra/s3/put_object_command";
 import { randomUUID } from "crypto";
 import { env } from "../../infra/env/env";
 import { ambisisSpan } from "../../shared/functions/ambisis_span";
+import busboy from "busboy";
+import { Upload } from "@aws-sdk/lib-storage";
+import { s3Client } from "../../infra/s3/client";
+import { EventEmitter } from "stream";
+import { Time } from "../../shared/types/time";
 
 export const backup = async (req: Request, res: Response) =>
   startSpan({ name: "backup" }, async (span) => {
     const { user_id, database } = req.session;
     try {
-      const files = req.files as Express.Multer.File[];
-      const backupFile = files.find((file) => file.fieldname === "database");
-      if (!backupFile)
-        return ambisisResponse(res, 422, "Backup file not found");
-      log(`Generating mobile database backup - ${user_id} - ${database}`);
-      await putObjectCommand({
-        Bucket: env.AWS_S3_BUCKET,
-        Key: `mobile-backups/${database}/${user_id}/${randomUUID()}.db`,
-        Body: backupFile.buffer,
+      const bb = busboy({ headers: req.headers });
+
+      const abortController = new AbortController();
+
+      abortController.signal.addEventListener("abort", () => {
+        log(
+          `Timed out trying to create backup - userId: ${user_id} - database: ${database}`,
+          LogLevel.INFO
+        );
+        span.setStatus({ code: SPAN_STATUS_ERROR, message: "Aborted" });
+        ambisisResponse(res, 400, "ABORTED");
+        res.end();
       });
-      ambisisSpan(span, { status: "ok" });
-      return ambisisResponse(res, 200, "SUCCESS");
+
+      setTimeout(() => abortController.abort(), Time.MINUTE * 5);
+
+      const backupUpload = new EventEmitter();
+
+      backupUpload.addListener("finish", () => {
+        log(
+          `Finished mobile database backup - ${user_id} - ${database}`,
+          LogLevel.INFO
+        );
+        ambisisResponse(res, 200, "SUCCESS");
+        res.end();
+      });
+
+      bb.on("file", (fieldName, body, info) => {
+        const { mimeType } = info;
+
+        if (fieldName !== "database") return;
+
+        const upload = new Upload({
+          client: s3Client,
+          params: {
+            Bucket: env.AWS_S3_BUCKET,
+            Key: `mobile-backups/${database}/${user_id}/${randomUUID()}.db`,
+            Body: body,
+            ContentType: mimeType,
+          },
+        });
+
+        upload
+          .done()
+          .then(() => backupUpload.emit("finish"))
+          .catch((error) => {
+            log(
+              `Failed to generate mobile database backup - ${user_id} - ${database} - ${error}`,
+              LogLevel.ERROR
+            );
+            ambisisResponse(res, 500, "INTERNAL SERVER ERROR");
+            ambisisSpan(span, { status: "error" });
+            res.end();
+          });
+      });
+
+      req.pipe(bb);
     } catch (error) {
       ambisisSpan(span, {
         status: "error",
