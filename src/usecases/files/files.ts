@@ -7,7 +7,7 @@ import { s3Client } from "../../infra/s3/client";
 import { Upload } from "@aws-sdk/lib-storage";
 import { env } from "../../infra/env/env";
 import { getFileById } from "../../domain/file/functions/get_file_by_id";
-import internal, { EventEmitter } from "stream";
+import internal from "stream";
 import { updateFile } from "../../domain/file/functions/update_file";
 import { db } from "../../infra/db/db";
 import { FileIsSynced } from "../../domain/file/types/file";
