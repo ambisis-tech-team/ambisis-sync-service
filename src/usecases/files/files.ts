@@ -73,6 +73,12 @@ export const files = (req: Request, res: Response) =>
 
         getFileById(fileId, database)
           .then((file) => {
+            if (file.s3FileStatus === FileIsSynced.SYNCED) {
+              failedSuccessfulFiles.successUploadedFiles.push(fileId);
+              uploads.emit("upload");
+              return;
+            }
+
             const upload = new Upload({
               client: s3Client,
               params: {
@@ -91,7 +97,11 @@ export const files = (req: Request, res: Response) =>
                 );
                 updateFile(
                   db,
-                  { id: fileId, s3FileStatus: FileIsSynced.SYNCED },
+                  {
+                    id: fileId,
+                    s3FileStatus: FileIsSynced.SYNCED,
+                    modificacaoData: new Date(),
+                  },
                   database
                 )
                   .then(() => {

@@ -10,6 +10,7 @@ export const fileSchema = z.object({
   id: z.number(),
   s3FileStatus: z.nativeEnum(FileIsSynced),
   keyS3: z.string(),
+  modificacaoData: z.coerce.date(),
 });
 
 export type File = z.infer<typeof fileSchema>;
