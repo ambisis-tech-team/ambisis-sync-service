@@ -25,6 +25,7 @@ export const files = (req: Request, res: Response) =>
       const abortController = new AbortController();
 
       abortController.signal.addEventListener("abort", () => {
+        if (res.writableEnded) return;
         log(
           `Files sync aborted - userId: ${user_id} - database: ${database}`,
           LogLevel.INFO
@@ -47,6 +48,7 @@ export const files = (req: Request, res: Response) =>
       const uploads = new EventEmitter();
 
       uploads.addListener("upload", () => {
+        if (res.writableEnded) return;
         if (
           !totalFiles ||
           failedSuccessfulFiles.successUploadedFiles.length +
