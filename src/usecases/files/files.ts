@@ -20,7 +20,7 @@ export const files = (req: Request, res: Response) =>
 
     const abortTimeout = setTimeout(
       () => abortController.abort(),
-      Time.MINUTE * 5
+      Time.MINUTE * 10
     );
 
     try {
