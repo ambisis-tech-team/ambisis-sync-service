@@ -19,6 +19,7 @@ export const backup = async (req: Request, res: Response) =>
       const abortController = new AbortController();
 
       abortController.signal.addEventListener("abort", () => {
+        if (res.writableEnded) return;
         log(
           `Timed out trying to create backup - userId: ${user_id} - database: ${database}`,
           LogLevel.INFO
@@ -33,6 +34,7 @@ export const backup = async (req: Request, res: Response) =>
       const backupUpload = new EventEmitter();
 
       backupUpload.addListener("finish", () => {
+        if (res.writableEnded) return;
         log(
           `Finished mobile database backup - ${user_id} - ${database}`,
           LogLevel.INFO
@@ -60,6 +62,7 @@ export const backup = async (req: Request, res: Response) =>
           .done()
           .then(() => backupUpload.emit("finish"))
           .catch((error) => {
+            if (res.writableEnded) return;
             log(
               `Failed to generate mobile database backup - ${user_id} - ${database} - ${error}`,
               LogLevel.ERROR
