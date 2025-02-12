@@ -13,28 +13,33 @@ import { Time } from "../../shared/types/time";
 export const backup = async (req: Request, res: Response) =>
   startSpan({ name: "backup" }, async (span) => {
     const { user_id, database } = req.session;
+    const abortController = new AbortController();
+
+    const abortTimeout = setTimeout(
+      () => abortController.abort(),
+      Time.MINUTE * 5
+    );
+
+    abortController.signal.addEventListener("abort", () => {
+      if (res.writableEnded || abortController.signal.aborted) return;
+      clearTimeout(abortTimeout);
+      log(
+        `Timed out trying to create backup - userId: ${user_id} - database: ${database}`,
+        LogLevel.INFO
+      );
+      span.setStatus({ code: SPAN_STATUS_ERROR, message: "Aborted" });
+      ambisisResponse(res, 400, "ABORTED");
+      res.end();
+    });
+
     try {
       const bb = busboy({ headers: req.headers });
-
-      const abortController = new AbortController();
-
-      abortController.signal.addEventListener("abort", () => {
-        if (res.writableEnded) return;
-        log(
-          `Timed out trying to create backup - userId: ${user_id} - database: ${database}`,
-          LogLevel.INFO
-        );
-        span.setStatus({ code: SPAN_STATUS_ERROR, message: "Aborted" });
-        ambisisResponse(res, 400, "ABORTED");
-        res.end();
-      });
-
-      setTimeout(() => abortController.abort(), Time.MINUTE * 5);
 
       const backupUpload = new EventEmitter();
 
       backupUpload.addListener("finish", () => {
-        if (res.writableEnded) return;
+        if (res.writableEnded || abortController.signal.aborted) return;
+        clearTimeout(abortTimeout);
         log(
           `Finished mobile database backup - ${user_id} - ${database}`,
           LogLevel.INFO
@@ -67,7 +72,8 @@ export const backup = async (req: Request, res: Response) =>
           .done()
           .then(() => backupUpload.emit("finish"))
           .catch((error) => {
-            if (res.writableEnded) return;
+            if (res.writableEnded || abortController.signal.aborted) return;
+            clearTimeout(abortTimeout);
             log(
               `Failed to generate mobile database backup - ${user_id} - ${database} - ${error}`,
               LogLevel.ERROR
@@ -80,6 +86,7 @@ export const backup = async (req: Request, res: Response) =>
 
       req.pipe(bb);
     } catch (error) {
+      clearTimeout(abortTimeout);
       ambisisSpan(span, {
         status: "error",
         message: `Failed tot generate mobile database backup - ${user_id} - ${database} - ${error}`,
