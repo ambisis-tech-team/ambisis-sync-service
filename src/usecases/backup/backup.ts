@@ -48,6 +48,11 @@ export const backup = async (req: Request, res: Response) =>
 
         if (fieldName !== "database") return;
 
+        log(
+          `Starting mobile database backup - ${user_id} - ${database}`,
+          LogLevel.INFO
+        );
+
         const upload = new Upload({
           client: s3Client,
           params: {
