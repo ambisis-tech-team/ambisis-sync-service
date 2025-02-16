@@ -14,22 +14,14 @@ export const getColumnsSelectFromColumnNamesAndForeignKeyMappings = (
     return {
       ...columnNames.reduce((acc, column) => {
         if (isColumnStateOrCityFk(column)) return { ...acc, [column]: column };
-        if (
-          column === "id" ||
-          column === "modificacaoUsuario" ||
-          guessIfColumnIsForeignKey(table, column)
-        )
+        if (column === "id" || guessIfColumnIsForeignKey(table, column))
           return { ...acc, [column]: sqlExpression`${negativeColumn(column)}` };
         return { ...acc, [column]: column };
       }, {}),
     };
   const columns = columnNames.reduce((acc, column) => {
     if (isColumnStateOrCityFk(column)) return { ...acc, [column]: column };
-    if (
-      column === "id" ||
-      column === "modificacaoUsuario" ||
-      guessIfColumnIsForeignKey(table, column)
-    )
+    if (column === "id" || guessIfColumnIsForeignKey(table, column))
       return { ...acc, [column]: sqlExpression`${negativeColumn(column)}` };
     const fk = fks.find((fk) => fk.parentColumn === column);
     if (!fk) return { ...acc, [column]: column };
