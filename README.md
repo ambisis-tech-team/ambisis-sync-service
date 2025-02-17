@@ -14,67 +14,18 @@ Rode os seguintes comandos, após instalar as dependências:
 $ bun i
 
 $ make
-
-$ make logs # Caso você queira ver os logs do serviço
 ```
 
-## Oque falta testar
+## Nix
 
-Coisas testas e problemas pendentes SYNC 3.0
+Gerenciador de pacotes
 
-Coisas testadas:
-Cada teste vai ser considerado criando todas as entidades possíveis e preenchendo todos os campos;
+Para iniciar, instale o [Nix](https://nixos.org/download/) em sua máquina
 
-- [x] Empresas
-- [x] Criar no mobile
-- [x] Editar no mobile
-- [x] Criar no web
-- [x] Editar no web
-- [x] Empreendimentos
-  - [x] Criar no mobile
-  - [x] Editar no mobile
-  - [x] Criar no web
-  - [x] Editar no web
-- [x] Licenças
-- [x] Editar no mobile
-- [x] Criar no mobile
-- [x] Criar no web
-- [x] Editar no web
-- [x] Fases
-  - [x] Editar no mobile
-  - [x] Criar no mobile
-  - [x] Editar no web
-  - [x] Criar no web
-- [x] Vistorias:
-- [x] Editar no mobile
-- [x] Criar no mobile
-- [x] Editar no web
-- [x] Criar no web
-- [x] Controles
-  - [x] Criar no mobile
-  - [x] Editar no mobile
-  - [x] Criar no web
-  - [x] Editar no web
-- [x] Lista de controles
-  - [x] Criar no mobile
-  - [x] Editar no mobile
-  - [x] Criar no web
-  - [x] Editar no web
-- [x] ESG
-  - [x] Unidade de medida
-    - [x] Criar no mobile
-    - [x] Editar no mobile
-    - [x] Criar no web
-    - [x] Editar no web
-  - [x] Metas
-    - [x] Criar no mobile
-    - [x] Editar no mobile
-    - [x] Criar no web
-    - [x] Editar no web
-  - [x] Associar meta
-    - [x] Associar no mobile
-    - [x] Associar no web
+Comandos utéis para o nix
 
-Lista de fixes pendentes a serem feitos no SYNC 3.0:
+```bash
+$ nix-shell
 
--
+$ sudo nix-collect-garbage -d # docker system prune -a
+```
