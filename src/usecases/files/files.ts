@@ -29,7 +29,7 @@ export const files = (req: Request, res: Response) =>
         LogLevel.INFO
       );
 
-      req.on("close", () => {
+      res.on("close", () => {
         if (abortController.signal.aborted) return;
         log(
           `Request closed prematurely - userId: ${user_id} - database: ${database}`,
