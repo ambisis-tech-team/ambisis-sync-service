@@ -149,6 +149,28 @@ export const files = (req: Request, res: Response) =>
         processFile(fieldName, body, info);
       });
 
+      bb.on("close", () => {
+        if (processedFiles === 0) return;
+
+        if (
+          processedFiles !== totalFiles ||
+          res.writableEnded ||
+          abortController.signal.aborted
+        )
+          return;
+        clearTimeout(abortTimeout);
+        log(
+          `Finished files sync - userId: ${user_id} - database: ${database}`,
+          LogLevel.INFO
+        );
+        span.setStatus({
+          code: SPAN_STATUS_OK,
+          message: "Files synced",
+        });
+        ambisisResponse(res, 200, "SUCCESS", failedSuccessfulFiles);
+        res.end();
+      });
+
       req.pipe(bb);
     } catch (error) {
       span.setStatus({
